@@ -9,28 +9,18 @@ namespace Life
     {
         static void Main(string[] args)
         {
-            if (args.Length == 0)
+            int firstOption = CheckForArguments(args);
+            List<List<string>> userInput;
+
+
+            if (firstOption != -1 && ((userInput = ParseArguments(args, firstOption)).Count) != 0)
             {
-                Console.WriteLine("You have not provided any arguments, reverting to defaults!");
-                return;
+                Settings gameSettings = new Settings(userInput);
             }
             else
             {
-                List<List<string>> userArgs = ParseArgs(args);
-
-                CheckArgs(userArgs);
-
-                /*for (int i = 0; i < userArgs.Count; i++)
-                {
-                    for (int j = 0; j < userArgs[i].Count; j++)
-                    {
-                        Console.WriteLine(userArgs[i][j]);
-                    }
-                    Console.WriteLine("<------------>");
-                }*/
-
+                Settings gameSettings = new Settings();
             }
-
         }
 
         /// <summary>
@@ -39,109 +29,65 @@ namespace Life
         /// </summary>
         /// <param name="args"></param>
         /// <returns>
-        /// A string type list of lists. Each sublist comprises of at least an option
-        /// and any parameters if entered.
+        /// Returns the index of the first seemingly valid option, otherwise returns -1 if no seemingly valid options
         /// </returns>
-        public static List<List<string>> ParseArgs(string[] args)
+        public static int CheckForArguments(string[] args)
         {
 
-            List<List<string>> arguments = new List<List<string>>();
-            
-            bool atLeastOneOption = false;  //  Set to true if there is at least one seemingly valid option
-            int firstValidOption = 0;       //  Set to the index of the first seemingly valid option
-            int counter = 0;                //  Counter for while loop
-           
-            while (!atLeastOneOption)
+            if (args.Length == 0)
             {
-                if (!args[counter].StartsWith("--"))
+                Console.WriteLine("You have not provided any arguments, reverting to defaults!");
+            }
+            else
+            {
+                for (int i = 0; i < args.Length; i++)
                 {
-                    Console.WriteLine($"Argument {args[counter]} has been ignored: ");
-                    Console.WriteLine($"\t- Precede all arguments with '--', e.g. '--{args[counter]}' followed by the parameters.");
-                    Console.WriteLine("\t- Refer to README.md for all valid arguments and more details instructions.");
+                    if (!args[i].StartsWith("--"))
+                    {
+                        Console.WriteLine($"Parameter {args[i]} has been ignored as it was not preceded by an option...");
+                    }
+                    else
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        public static List<List<string>> ParseArguments(string[] args, int firstUserOption)
+        {
+            List<List<string>> userArguments = new List<List<string>>();
+
+            //  Start grouping options and parameters into individual lists, starting from the first valid option
+            for (int i = firstUserOption; i < args.Length; i++)
+            {
+                if (!Settings.attributes.Contains(args[i]))
+                {
+                    Console.WriteLine($"{args[i]} is not a valid option.");
                 }
                 else
                 {
-                    atLeastOneOption = true; // We now know there is at least one valid argument we can use
-                    firstValidOption = counter;
-                    break;
-                }
-                
-                counter++;
-                //  If we reach the end of the array and there haven't been any valid options, return the empty list and tell the user
-                //  the defaults will be used
-                if (counter == args.Length)
-                {
-                    Console.WriteLine("\nThere are no valid arguments, reverting to default values for this Game of Life!");
-                    return arguments;
-                }
-            }
-
-            //  Start grouping options and parameters into individual lists, starting from the first valid option
-            for (int i = firstValidOption; i < args.Length; i++)
-            {
-                List<string> optsAndParams = new List<string>();
-                int j = i + 1;
-                //  Add the option to the first index of the new list
-                optsAndParams.Add(args[i]);
-                if (j < args.Length)
-                {
-                    //  Keep adding parameters to the new list until we reach the next option OR the end of the args array
-                    while ((j < args.Length) && (!args[j].StartsWith("--")))
+                    //  Sub-list of an option with any relevant parameters
+                    List<string> optsAndParams = new List<string> { args[i] };
+                    int nextArgument = i + 1;
+                    if (nextArgument < args.Length)
                     {
-                        optsAndParams.Add(args[j]);
-                        //  Set i to j so the loop counts from the current index rather than the index of the most recent option
-                        i = j;
-                        j++;
+                        //  Keep adding parameters to the new list until we reach the next option OR the end of the args array
+                        while ((nextArgument < args.Length) && (!args[nextArgument].StartsWith("--")))
+                        {
+                            optsAndParams.Add(args[nextArgument]);
+                            //  Set i to nextArgument so the outer for loop continues from the next option
+                            i = nextArgument;
+                            nextArgument++;
+                        }
                     }
+                    //  Once we have reached the next option or the end of the args array, add the list to the arguments list
+                    userArguments.Add(optsAndParams);
                 }
-                //  Once we have reached the next option or the end of the args array, add the list to the arguments list
-                arguments.Add(optsAndParams);
             }
-
-            return arguments;
-        }
-
-        /// <summary>
-        /// Checks each sublist of options and parameters and calls the relevant methods for those
-        /// </summary>
-        /// <param name="args"></param>
-        public static void CheckArgs(List<List<string>> args)
-        {
-            args.ForEach(delegate (List<string> options)
-            {
-                switch (options[0])
-                {
-                    case "--dimensions":
-                        Console.WriteLine($"1 - {options[0]}");
-                        Settings.Dimensions(options);
-                        break;
-                    case "--periodic":
-                        Console.WriteLine($"2 - {options[0]}");
-                        Settings.Periodic(options);
-                        break;
-                    case "--random":
-                        Console.WriteLine($"3 - {options[0]}");
-                        Settings.RandomFactor(options);
-                        break;
-                    case "--seed":
-                        Console.WriteLine($"4 - {options[0]}");
-                        Settings.OpenSeed(options);
-                        break;
-                    case "--generations":
-                        Console.WriteLine($"5 - {options[0]}");
-                        Settings.ChangeGenerations(options);
-                        break;
-                    case "--max-update":
-                        Console.WriteLine($"6 - {options[0]}");
-                        break;
-                    case "--step":
-                        Console.WriteLine($"7 - {options[0]}");
-                        break;
-                    default:
-                        Console.WriteLine($"Unknown argument '{options[0]}'.");
-                        break;
-                }
-            });
+            return userArguments;
         }
     }
 }
