@@ -12,7 +12,6 @@ namespace Life
             int firstOption = CheckForArguments(args);
             List<List<string>> userInput;
 
-
             if (firstOption != -1 && ((userInput = ParseArguments(args, firstOption)).Count) != 0)
             {
                 Settings gameSettings = new Settings(userInput);
@@ -25,15 +24,14 @@ namespace Life
 
         /// <summary>
         /// Parses a list of strings to group options (beginning with "--") with their parameters
-        /// as entered by the user
+        /// as entered by the user. This doesn't do any validation, just checks if there are any options.
         /// </summary>
         /// <param name="args"></param>
         /// <returns>
-        /// Returns the index of the first seemingly valid option, otherwise returns -1 if no seemingly valid options
+        /// Returns the index of the first seemingly valid option, otherwise returns -1 if no arguments or no seemingly valid options
         /// </returns>
         public static int CheckForArguments(string[] args)
         {
-
             if (args.Length == 0)
             {
                 Console.WriteLine("You have not provided any arguments, reverting to defaults!");
@@ -56,13 +54,22 @@ namespace Life
             return -1;
         }
 
+        /// <summary>
+        /// Checks the options the user has entered and confirms they are valid. If they are,
+        /// it groups the options with any parameters that follow. Does NOT validate parameters.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="firstUserOption"></param>
+        /// <returns>A list of lists, where each sub-list begins with an option followed by
+        /// parameters the user entered.
+        /// </returns>
         public static List<List<string>> ParseArguments(string[] args, int firstUserOption)
         {
             List<List<string>> userArguments = new List<List<string>>();
-
             //  Start grouping options and parameters into individual lists, starting from the first valid option
             for (int i = firstUserOption; i < args.Length; i++)
             {
+                //  Checks if the option is in the list of allowed options
                 if (!Settings.attributes.Contains(args[i]))
                 {
                     Console.WriteLine($"{args[i]} is not a valid option.");
@@ -83,7 +90,7 @@ namespace Life
                             nextArgument++;
                         }
                     }
-                    //  Once we have reached the next option or the end of the args array, add the list to the arguments list
+                    //  Once we have reached the next option or the end of the args array, add the list to the userArguments list
                     userArguments.Add(optsAndParams);
                 }
             }

@@ -26,7 +26,7 @@ namespace Life
                                                                             "--step"
                                                                           };
         
-        //  Initialise game attributes with default values
+        //  Settings attributes
         private int rows, columns;
         private bool periodic;
         private float random;
@@ -35,7 +35,10 @@ namespace Life
         private float updateRate;
         private bool stepMode;
 
-        //  Constructor for Settings when the user does not parse any arguments into the CLI
+        /// <summary>
+        /// Default constructor, called when user doesn't change settings or doesn't enter any valid --options.
+        /// Sets each game attribute to its default state.
+        /// </summary>
         public Settings()
         {
             rows = 16; 
@@ -48,7 +51,12 @@ namespace Life
             stepMode = false;
         }
 
-    //  Constructor for Settings when the user DOES parse arguments into the CLI
+    /// <summary>
+    /// Constructor called when the user enters at least one valid --option.
+    /// It traverses the list of lists and calls the relevant validity-check method for any
+    /// options entered by the user.
+    /// </summary>
+    /// <param name="userArgs"></param>
     public Settings(List<List<string>> userArgs)
         {
             userArgs.ForEach(delegate (List<string> options)
@@ -82,11 +90,28 @@ namespace Life
             });
         }
 
+        /// <summary>
+        /// This subtracts the number of arguments expected when an option is called by a user
+        /// verse the number received by the user. NB, the number expected includes the --option argument.
+        /// </summary>
+        /// <param name="numReceived"></param>
+        /// <param name="numExpected"></param>
+        /// <returns>
+        /// The difference between the number of arguments received and number expected.
+        /// </returns>
         private static int CheckNumOfArgs(int numReceived, int numExpected)
         {
             return numReceived - numExpected;
         }
 
+        /// <summary>
+        /// Produces a generic error message if the arg count difference != 0
+        /// </summary>
+        /// <param name="option"></param>
+        /// <param name="difference"></param>
+        /// <returns>
+        /// A string to use print out. Can append more specific information depending on the option.
+        /// </returns>
         private static string ParamCountErrorMessage(string option, int difference)
         {
             if (difference > 0)
@@ -100,23 +125,24 @@ namespace Life
         }
 
         /// <summary>
-        /// Changes dimensions of board based on valid user input
+        /// Validates the parameters entered by the user for --dimensions and changes the rows
+        /// and columns attribute accordingly. If the user input is invalid, the default value is retained.
         /// </summary>
         /// <param name="userInput"></param>
+        /// <param name="rows"></param>
+        /// <param name="cols"></param>
         public void Dimensions(List<String> userInput, out int rows, out int cols)
         {
-            
             rows = 16;  //  These are the default values
             cols = 16;  //  and will only be changed if the user input is valid!
-
             int userRows, userCols;
             int numExpectedArgs = 3;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
 
             //  Check user has entered two parameters (one for rows and one for columns)
-            //  Should be three (including the 0 index "--dimensions" argument)
             if (argCountDifference == 0)
             {
+                // If they have, validate those values are both ints between 4 and 48 inclusive
                 if ((Int32.TryParse(userInput[1], out userRows) && Int32.TryParse(userInput[2], out userCols))
                     && ((userRows >= 4 && userRows <= 48) && (userCols >= 4 && userCols <= 48)))
                 {
@@ -131,22 +157,22 @@ namespace Life
             else
             {
                 Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference) 
-                    + " Please specify at most TWO positive integers between 4 and 48 inclusive.");
+                    + " Please specify exactly TWO positive integers between 4 and 48 inclusive.");
             }
         }
 
         /// <summary>
-        /// If the user has entered --periodic, will change the behaviour type to be periodic.
-        /// Does not take any parameters so they will be ignored and the user will be told as such
+        /// If --periodic and/or --step are called, they will be set to true regardless of what parameters the user
+        /// enters after them. This functions will check for any parameters and let the user know it doesn't know
+        /// what to do with them.
         /// </summary>
         /// <param name="userInput"></param>
         public static void PeriodicAndStep(List<string> userInput, out bool status)
         {
             int numExpectedArgs = 1;
-            //  Because the periodic/step option was called, it will return true and ignore the parameters
             status = true;
 
-            // Check for erroneous parameters following periodic/step and let the user know these are unecessary/ignored
+            // Check for parameters following periodic/step and let the user know these are unecessary/ignored
             if (CheckNumOfArgs(userInput.Count, numExpectedArgs) != 0)
             {
                 Console.Write($"Unknow parameter(s) for {userInput[0]}: ");
@@ -167,9 +193,11 @@ namespace Life
         }
 
         /// <summary>
-        /// If --random is called, validates the user's input and changes the value of the random variable if OK
+        /// Validates the parameter for --random and changes the random attribute accordingly.
+        /// Stays at the default value if invalid user input.
         /// </summary>
         /// <param name="userInput"></param>
+        /// <param name="random"></param>
         public static void RandomFactor(List<string> userInput, out float random)
         {
             
@@ -207,12 +235,14 @@ namespace Life
         }
 
         /// <summary>
-        /// If the --generation argument is called, validates user input and changes number of generations run
+        /// Validates the parameter for --generations and changes the generations attribute accordingly.
+        /// Stays at the default value if user input is invalid.
         /// </summary>
         /// <param name="userInput"></param>
+        /// <param name="gens"></param>
         public static void ChangeGenerations(List<string> userInput, out int gens)
         {
-            gens = 50;   //  The default value;
+            gens = 50;   //  The default value
             int numExpectedArgs = 2;
             int userGens;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
@@ -235,9 +265,15 @@ namespace Life
             }   
         }
 
+        /// <summary>
+        /// Validates the parameter for --max-update and changes the updateRate attribute accordingly.
+        /// Stays at the default value if user input is invalid.
+        /// </summary>
+        /// <param name="userInput"></param>
+        /// <param name="ups"></param>
         public static void ChangeMaxUPS(List<string> userInput, out float ups)
         {
-            ups = 5;    //  The default, will only be changed with valid user input
+            ups = 5;    //  The default value
             int numExpectedArgs = 2;
             float userUPS;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
