@@ -11,15 +11,28 @@ namespace Life
         {
             int firstOption = CheckForArguments(args);
             List<List<string>> userInput;
+            Settings gameSettings;
 
             if (firstOption != -1 && ((userInput = ParseArguments(args, firstOption)).Count) != 0)
             {
-                Settings gameSettings = new Settings(userInput);
+                gameSettings = new Settings(userInput);
+                Console.WriteLine("Setting up game with the following values:");
             }
             else
             {
-                Settings gameSettings = new Settings();
+                gameSettings = new Settings();
+                Console.WriteLine("Setting up game with default values:");
             }
+
+            Game game = new Game(gameSettings);
+
+            game.PrintSettings();
+            Console.WriteLine("Press any key to start...");
+            Console.ReadKey();
+
+            game.CycleThroughGame();
+            game.RenderFinalGrid();
+
         }
 
         /// <summary>
@@ -72,7 +85,15 @@ namespace Life
                 //  Checks if the option is in the list of allowed options
                 if (!Settings.attributes.Contains(args[i]))
                 {
-                    Console.WriteLine($"{args[i]} is not a valid option.");
+                    if (args[i].StartsWith("--"))
+                    {
+                        Console.WriteLine($"{args[i]} is not a valid option.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Parameter {args[i]} preceeded by invalid option.");
+                    }
+                    
                 }
                 else
                 {

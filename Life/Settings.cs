@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Reflection.Metadata;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -20,75 +21,76 @@ namespace Life
         public static readonly List<string> attributes = new List<string> { "--dimensions",
                                                                             "--periodic",
                                                                             "--random",
-                                                                            "--seedFile",
+                                                                            "--seed",
                                                                             "--generations",
-                                                                            "--updateRate",
+                                                                            "--max-update",
                                                                             "--step"
                                                                           };
-        
-        //  Settings attributes
-        private int rows, columns;
-        private bool periodic;
-        private float random;
-        private string seedFile;
-        private int generations;
-        private float updateRate;
-        private bool stepMode;
+
+        //  Settings fields, set to default values
+        private int rows = 16; 
+        private int columns = 16;
+        private bool periodic = false;
+        private float random = 0.5F;
+        private string seedFile = "None";
+        private int generations = 50;
+        private float updateRate = 5;
+        private bool stepMode = false;
+
+        //  Settings properties
+
+        public int Rows { get { return rows; } }
+        public int Columns { get { return columns; } }
+        public bool Periodic { get { return periodic; } }
+        public float Random { get { return random; } }
+        public string SeedFile { get { return seedFile; } }
+        public int Generations { get { return generations; } }
+        public float UpdateRate { get { return updateRate; } }
+        public bool StepMode { get { return stepMode; } }
 
         /// <summary>
         /// Default constructor, called when user doesn't change settings or doesn't enter any valid --options.
-        /// Sets each game attribute to its default state.
         /// </summary>
-        public Settings()
-        {
-            rows = 16; 
-            columns = 16;
-            periodic = false;
-            random = 0.5F;
-            seedFile = "";
-            generations = 50;
-            updateRate = 5;
-            stepMode = false;
-        }
+        public Settings() { }
 
-    /// <summary>
-    /// Constructor called when the user enters at least one valid --option.
-    /// It traverses the list of lists and calls the relevant validity-check method for any
-    /// options entered by the user.
-    /// </summary>
-    /// <param name="userArgs"></param>
-    public Settings(List<List<string>> userArgs)
-        {
-            userArgs.ForEach(delegate (List<string> options)
+        /// <summary>
+        /// Constructor called when the user enters at least one valid --option.
+        /// It traverses the list of lists and calls the relevant validity-check method for any
+        /// options entered by the user.
+        /// </summary>
+        /// <param name="userArgs"></param>
+        public Settings(List<List<string>> userArgs)
             {
-                switch (options[0])
+                userArgs.ForEach(delegate (List<string> options)
                 {
-                    case "--dimensions":
-                        Dimensions(options, out rows, out columns);
-                        break;
-                    case "--periodic":
-                        PeriodicAndStep(options, out periodic);
-                        break;
-                    case "--random":
-                        RandomFactor(options, out random);
-                        break;
-                    case "--seed":
-                        OpenSeed(options, out seedFile);
-                        break;
-                    case "--generations":
-                        ChangeGenerations(options, out generations);
-                        break;
-                    case "--max-update":
-                        ChangeMaxUPS(options, out updateRate);
-                        break;
-                    case "--step":
-                        PeriodicAndStep(options, out stepMode);
-                        break;
-                    default:
-                        break;
-                }
-            });
-        }
+                    switch (options[0])
+                    {
+                        case "--dimensions":
+                            Dimensions(options, out rows, out columns);
+                            break;
+                        case "--periodic":
+                            PeriodicAndStep(options, out periodic);
+                            break;
+                        case "--random":
+                            RandomFactor(options, out random);
+                            break;
+                        case "--seed":
+                            OpenSeed(options, out seedFile);
+                            break;
+                        case "--generations":
+                            ChangeGenerations(options, out generations);
+                            break;
+                        case "--max-update":
+                            ChangeMaxUPS(options, out updateRate);
+                            break;
+                        case "--step":
+                            PeriodicAndStep(options, out stepMode);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            }
 
         /// <summary>
         /// This subtracts the number of arguments expected when an option is called by a user
@@ -228,10 +230,32 @@ namespace Life
         /// Open and read seed file ****************TO DO**********TO DO***********TO DO*********************
         /// </summary>
         /// <param name="options"></param>
-        public static void OpenSeed(List<string> options, out string seedFile)
+        public static void OpenSeed(List<string> userInput, out string seedFile)
         {
-            seedFile = "";
-            return;
+            seedFile = "None";  // Default value
+            int numExpectedArgs = 2;
+            string file;
+            string extension = ".seed";
+            int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
+            
+            if (argCountDifference == 0)
+            {
+                file = userInput[1];
+                if (File.Exists(file) && (Path.GetExtension(file) == extension))
+                {
+                    seedFile = file;
+                }
+                else
+                {
+                    Console.WriteLine("The seed file provided is not valid. Please ensure you type the path or file name correctly," +
+                        " and that the file ends in '.seed'.");
+                }
+            }
+            else
+            {
+                Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
+                   + " Please specify a single file name or path.");
+            }
         }
 
         /// <summary>

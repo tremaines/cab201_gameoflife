@@ -2,7 +2,7 @@
   "profiles": {
     "Life": {
       "commandName": "Project",
-      "commandLineArgs": "--three"
+      "commandLineArgs": "--seed glider.seed --periodic --dimensions 10 10 --generations 100 --max-update 20"
     }
   }
 }
