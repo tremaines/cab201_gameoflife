@@ -9,6 +9,16 @@ using System.Data;
 
 namespace Life
 { 
+    /// <summary>
+    /// The game class use a Settings object to play the Game of Life according to the variables
+    /// of the Settings instance.
+    /// </summary>
+    /// <author>
+    /// Tremaine Stroebel
+    /// </author>
+    /// <date>
+    /// September 2020
+    /// </date>
     class Game
     {
         private enum DeadOrAlive
@@ -18,60 +28,85 @@ namespace Life
         }
         private Settings settings;
         private Grid grid;
-        private DeadOrAlive[,] status;
-        private DeadOrAlive[,] nextGenStatus;
+        private DeadOrAlive[,] statusArray;
 
+        /// <summary>
+        /// Constructor for a new game of life. Takes in the game settings and sets up a new "board" using
+        /// the statusArray variable.
+        /// </summary>
+        /// <param name="settings"></param>
         public Game(Settings settings)
         {
             this.settings = settings;
             grid = new Grid(settings.Rows, settings.Columns);
-            status = new DeadOrAlive[settings.Rows, settings.Columns];
-            nextGenStatus = new DeadOrAlive[settings.Rows, settings.Columns];
+            statusArray = new DeadOrAlive[settings.Rows, settings.Columns];
         }
 
+        /// <summary>
+        /// Prints the settings used by this instance of the Game.
+        /// </summary>
         public void PrintSettings()
         {
-            Console.WriteLine($"\tNumber of rows: {settings.Rows}\n" +
-                $"\tNumber of columns: {settings.Columns}\n" +
-                $"\tPeriodic status: {settings.Periodic}\n" +
-                $"\tRandom Factor: {settings.Random}\n" +
-                $"\tSeed file: {settings.SeedFile}\n" +
-                $"\tNo. of Generations: {settings.Generations}\n" +
-                $"\tUpdate rate (per second): {settings.UpdateRate}\n" +
-                $"\tStep mode: {settings.StepMode}");
+            Console.WriteLine($"\t       Number of Rows: {settings.Rows}\n" +
+                $"\t    Number of Columns: {settings.Columns}\n" +
+                $"\tPeriodic Mode Enabled: {settings.Periodic}\n" +
+                $"\t        Random Factor: {settings.Random:P2}\n" +
+                $"\t            Seed File: {Path.GetFileName(settings.SeedFile)}\n" +
+                $"\t   No. of Generations: {settings.Generations}\n" +
+                $"\t          Update Rate: {settings.UpdateRate} generations / second\n" +
+                $"\t    Step Mode Enabled: {settings.StepMode}");
+            Console.WriteLine("\nPress any key to start...");
+            Console.ReadKey();
         }
 
-        public void SetupCells()
+        /// <summary>
+        /// Cycles through the game starting at generation 0 up to the number of generations set in the Settings
+        /// </summary>
+        public void CycleThroughGame()
         {
-            for (int r = 0; r < settings.Rows; r++)
+            SetInitialState();
+            grid.InitializeWindow();
+            Stopwatch watch = new Stopwatch();
+
+            for (int i = 0; i <= settings.Generations; i++)
             {
-                for (int c = 0; c < settings.Columns; c++)
+                grid.SetFootnote($"Generation: {i}");
+                UpdateCellStatus();
+                grid.Render();
+                watch.Restart();
+
+                // User cycles through 1 generation at a time by pressing space if step mode enabled
+                if (settings.StepMode)
                 {
-                    status[r, c] = DeadOrAlive.dead;
+                    CheckForSpace();
                 }
+                // Otherwise game cycles through at the update rate specified in Settings
+                else
+                {
+                    while (watch.ElapsedMilliseconds < ((1 / settings.UpdateRate) * 1000)) ;
+                }
+                statusArray = NextGenerationStatus();
             }
         }
 
-        private void ReadSeedFile()
+        /// <summary>
+        /// When the Game is complete, render the final scene and prompt the user to
+        /// push space to exit the game
+        /// </summary>
+        public void RenderFinalGrid()
         {
-            string fileName = settings.SeedFile;
-            using (StreamReader reader = new StreamReader(fileName))
-            {
-                reader.ReadLine();
-                char delimiter = ' ';
-                string line;
-
-                while ((line = reader.ReadLine()) != null)
-                {
-                    string[] coordinates = line.Split(delimiter);
-                    int row = Int32.Parse(coordinates[0]);
-                    int col = Int32.Parse(coordinates[1]);
-                    status[row, col] = DeadOrAlive.alive;
-                }
-            }
+            grid.IsComplete = true;
+            grid.Render();
+            Console.Write("\n\nPress SPACE to finish...");
+            CheckForSpace();
+            grid.RevertWindow();
         }
 
-        public void SetInitialState()
+        /// <summary>
+        /// Sets the initial state of the cells in generation 0 based on the seed file (if provided & valid)
+        /// or the random factor
+        /// </summary>
+        private void SetInitialState()
         {
             if (settings.SeedFile != "None")
             {
@@ -81,7 +116,6 @@ namespace Life
             {
                 float chance = settings.Random * 100;
                 Random random = new Random();
-
                 for (int r = 0; r < settings.Rows; r++)
                 {
                     for (int c = 0; c < settings.Columns; c++)
@@ -89,13 +123,80 @@ namespace Life
                         if (chance > random.Next(100))
                         {
                             grid.UpdateCell(r, c, CellState.Full);
-                            status[r, c] = DeadOrAlive.alive;
+                            statusArray[r, c] = DeadOrAlive.alive;
                         }
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Reads a seed file and sets cells to alive given the information in the seed file
+        /// if that cell is within the bounds of the board.
+        /// </summary>
+        private void ReadSeedFile()
+        {
+            string fileName = settings.SeedFile;
+            using (StreamReader reader = new StreamReader(fileName))
+            {
+                reader.ReadLine();
+                char delimiter = ' ';
+                string line;
+                // Keep track of the highest row and column value in the seed file
+                int rowMax = 0;
+                int colMax = 0;
+                bool outOfBoundsValue = false;
+
+                while ((line = reader.ReadLine()) != null)
+                {
+                    string[] coordinates = line.Split(delimiter);
+                    int row = Int32.Parse(coordinates[0]);
+                    int col = Int32.Parse(coordinates[1]);
+                    CheckSeedValues(row, ref rowMax);
+                    CheckSeedValues(col, ref colMax);
+
+                    // If either the row or column value are out of bounds, continue through next iteration
+                    // of loop instead of changing cell to alive
+                    if (row + 1 > settings.Rows || col + 1 > settings.Columns)
+                    {
+                        outOfBoundsValue = true;
+                        continue;
+                    }
+                    statusArray[row, col] = DeadOrAlive.alive;
+                }
+                
+                // If there were any out of bounds values, print recommended dimensions based on max row
+                // and column values
+                if (outOfBoundsValue)
+                {
+                    Console.WriteLine("\nWARNING! Game will continue but some cells in seed file are out of bounds:");
+                    Console.WriteLine($"  - Recommended minimum dimensions based on seed file: {rowMax + 1} rows " +
+                                      $"X {colMax + 1} columns.");
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the value of the variable storing the maximum dimension in a seed file
+        /// </summary>
+        /// <param name="seedValue"></param>
+        /// <param name="maxValue"></param>
+        private void CheckSeedValues(int seedValue, ref int maxValue)
+        {
+            if (seedValue > maxValue)
+            {
+                maxValue = seedValue;
+            }
+        }
+
+        /// <summary>
+        /// Checks the 8 neighbours of a cell and counts the number of living neighbours it has
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="column"></param>
+        /// <returns>The total number of living neighbours of the cell</returns>
         private int CheckNeighbours(int row, int column)
         {
             int livingNeighbours = 0;
@@ -105,65 +206,78 @@ namespace Life
                 {
                     int neighbourR = row + r;
                     int neighbourC = column + c;
-                    if (!(r == 0 && c == 0))
+                    if (!(r == 0 && c == 0))     // Don't want to count a cell as its own neighbour
                     {
                         if (settings.Periodic)
                         {
-                            livingNeighbours += (int)status[((neighbourR + settings.Rows) % settings.Rows),
+                            livingNeighbours += (int)statusArray[((neighbourR + settings.Rows) % settings.Rows),
                                 ((neighbourC + settings.Columns) % settings.Columns)];
                         }
+                        // Check if neighbour cell is within the bounds of the board
                         else if ((neighbourR >= 0 && neighbourC >= 0) && 
                             (neighbourR < settings.Rows && neighbourC < settings.Columns))
                         {
-                            livingNeighbours += (int)status[neighbourR, neighbourC];
+                            livingNeighbours += (int)statusArray[neighbourR, neighbourC];
                         }
                     }
                 }
             }
-            
             return livingNeighbours;
         }
 
-        public void NextGenerationStatus()
+        /// <summary>
+        /// Checks each cell against the rules of the Game of Life to determine their status next generation
+        /// </summary>
+        /// <returns>A 2D array of what the board will look like next generation</returns>
+        private DeadOrAlive[,] NextGenerationStatus()
         {
+            DeadOrAlive[,] nextGenStatusArray = new DeadOrAlive[settings.Rows, settings.Columns];
             for (int r = 0; r < settings.Rows; r++)
             {
                 for (int c = 0; c < settings.Columns; c++)
                 {
                     int livingNeighbours = CheckNeighbours(r, c);
-                    if (status[r, c] == DeadOrAlive.dead)
+                    if (statusArray[r, c] == DeadOrAlive.dead)
                     {
+                        // If a cell is a dead and has exactly 3 living neighbours, it will be alive
                         if (livingNeighbours == 3)
                         {
-                            nextGenStatus[r, c] = DeadOrAlive.alive;
+                            nextGenStatusArray[r, c] = DeadOrAlive.alive;
                         }
+                        // Otherwise it stays dead
                         else
                         {
-                            nextGenStatus[r, c] = DeadOrAlive.dead;
+                            nextGenStatusArray[r, c] = DeadOrAlive.dead;
                         }
                     }
-                    else if (status[r, c] == DeadOrAlive.alive)
+                    else if (statusArray[r, c] == DeadOrAlive.alive)
                     {
+                        // If a cell is a live and has 2 or 3 living neighbours, it will stay alive
                         if (livingNeighbours == 2 || livingNeighbours == 3)
                         {
-                            nextGenStatus[r, c] = DeadOrAlive.alive;
+                            nextGenStatusArray[r, c] = DeadOrAlive.alive;
                         }
+                        // Otherwise it will die
                         else
                         {
-                            nextGenStatus[r, c] = DeadOrAlive.dead;
+                            nextGenStatusArray[r, c] = DeadOrAlive.dead;
                         }
                     }
                 }
             }
+            return nextGenStatusArray;
         }
 
-        public void UpdateCellStatus()
+        /// <summary>
+        /// Taverse through cells and update their state based on their DeadOrAlive status
+        /// </summary>
+        private void UpdateCellStatus()
         {
             for (int r = 0; r < settings.Rows; r++)
             {
                 for (int c = 0; c < settings.Columns; c++)
                 {
-                    if (status[r, c] == DeadOrAlive.alive)
+                    if (statusArray[r, c] == DeadOrAlive.alive)
                     {
                         grid.UpdateCell(r, c, CellState.Full);
                     }
@@ -172,45 +286,16 @@ namespace Life
             }
         }
 
-        public void CycleThroughGame()
+        /// <summary>
+        /// Loops until user pushes the spacebar key
+        /// </summary>
+        private void CheckForSpace()
         {
-            
-            grid.InitializeWindow();
-            SetupCells();
-            SetInitialState();
-            Stopwatch watch = new Stopwatch();
-
-            for (int i = 0; i <= settings.Generations; i++)
+            ConsoleKeyInfo keyPress = Console.ReadKey(true);
+            while(keyPress.KeyChar != ' ')
             {
-                grid.SetFootnote($"Generation: {i}");
-                UpdateCellStatus();
-                grid.Render();
-
-                watch.Restart();
-                if (settings.StepMode)
-                {
-                    ConsoleKeyInfo keyPress = Console.ReadKey();
-                    while (keyPress.KeyChar != ' ')
-                    {
-                        keyPress = Console.ReadKey();
-                    }
-                }
-                else
-                {
-                    while (watch.ElapsedMilliseconds < ((1 / settings.UpdateRate) * 1000)) ;
-                }
-                NextGenerationStatus();
-                status = nextGenStatus;
-                nextGenStatus = new DeadOrAlive[settings.Rows, settings.Columns];
+                keyPress = Console.ReadKey(true);
             }
-        }
-
-        public void RenderFinalGrid()
-        {
-            grid.IsComplete = true;
-            grid.Render();
-            Console.ReadKey();
-            grid.RevertWindow();
         }
     }
 }

@@ -101,7 +101,7 @@ namespace Life
         /// <returns>
         /// The difference between the number of arguments received and number expected.
         /// </returns>
-        private static int CheckNumOfArgs(int numReceived, int numExpected)
+        private int CheckNumOfArgs(int numReceived, int numExpected)
         {
             return numReceived - numExpected;
         }
@@ -114,15 +114,15 @@ namespace Life
         /// <returns>
         /// A string to use print out. Can append more specific information depending on the option.
         /// </returns>
-        private static string ParamCountErrorMessage(string option, int difference)
+        private string ParamCountErrorMessage(string option, int difference)
         {
             if (difference > 0)
             {
-                return $"Too many parameters received for {option}.";
+                return $"WARNING: Too many parameters received for {option}.";
             }
             else
             {
-                return $"Not enough parameters received for {option}.";
+                return $"WARNING: Not enough parameters received for {option}.";
             }
         }
 
@@ -132,11 +132,12 @@ namespace Life
         /// </summary>
         /// <param name="userInput"></param>
         /// <param name="rows"></param>
-        /// <param name="cols"></param>
-        public void Dimensions(List<String> userInput, out int rows, out int cols)
+        /// <param name="columns"></param>
+        private void Dimensions(List<String> userInput, out int rows, out int columns)
         {
-            rows = 16;  //  These are the default values
-            cols = 16;  //  and will only be changed if the user input is valid!
+            rows = this.rows;  //  These are the default values
+            columns = this.columns;  //  and will only be changed if the user input is valid!
+            string defaultMsg = $"Using default {rows} rows X {columns} columns";
             int userRows, userCols;
             int numExpectedArgs = 3;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
@@ -149,17 +150,19 @@ namespace Life
                     && ((userRows >= 4 && userRows <= 48) && (userCols >= 4 && userCols <= 48)))
                 {
                     rows = userRows;
-                    cols = userCols;
+                    columns = userCols;
                 }
                 else
                 {
-                    Console.WriteLine("--dimensions requires two positive integers between 4 and 48 inclusive.");
+                    Console.WriteLine("WARNING: --dimensions requires two positive integers between 4 and 48 inclusive.");
+                    Console.WriteLine(" - " + defaultMsg);
                 }
             }
             else
             {
                 Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference) 
                     + " Please specify exactly TWO positive integers between 4 and 48 inclusive.");
+                Console.WriteLine(" - " + defaultMsg);
             }
         }
 
@@ -169,12 +172,13 @@ namespace Life
         /// what to do with them.
         /// </summary>
         /// <param name="userInput"></param>
-        public static void PeriodicAndStep(List<string> userInput, out bool status)
+        private void PeriodicAndStep(List<string> userInput, out bool status)
         {
             int numExpectedArgs = 1;
+            // If --periodic and/or --step are called, set to true regardless of any parameters that follow
             status = true;
 
-            // Check for parameters following periodic/step and let the user know these are unecessary/ignored
+            // If the user has provided parameters, let the user know they have been ignored
             if (CheckNumOfArgs(userInput.Count, numExpectedArgs) != 0)
             {
                 Console.Write($"Unknow parameter(s) for {userInput[0]}: ");
@@ -189,7 +193,7 @@ namespace Life
                         Console.Write($"'{userInput[i]}', ");
                     }
                 }
-                Console.WriteLine($"{userInput[0]} has been set to TRUE but, for future reference, " +
+                Console.WriteLine($"WARNING: {userInput[0]} has been set to TRUE but, for future reference, " +
                     $"does not require parameters.");
             }
         }
@@ -200,10 +204,11 @@ namespace Life
         /// </summary>
         /// <param name="userInput"></param>
         /// <param name="random"></param>
-        public static void RandomFactor(List<string> userInput, out float random)
+        private void RandomFactor(List<string> userInput, out float random)
         {
             
-            random = 0.5F;  //  This is the default that will change only if the user input is valid
+            random = this.random;  // Default value
+            string defaultMsg = $"Using default {random:P2}";
             float userRand;
             int numExpectedArgs = 2;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
@@ -216,23 +221,26 @@ namespace Life
                 }
                 else
                 {
-                    Console.WriteLine("--random requires a float parameter between 0 and 1 inclusive.");
+                    Console.WriteLine("WARNING: --random requires a floating point value between 0 and 1 inclusive.");
+                    Console.WriteLine(" - " + defaultMsg);
                 }
             }
             else
             {
                 Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
-                    + " Please specify a single float parameter between 0 and 1 inclusive.");
+                    + " Please specify a single floating point parameter between 0 and 1 inclusive.");
+                Console.WriteLine(" - " + defaultMsg);
             }
         }
 
         /// <summary>
-        /// Open and read seed file ****************TO DO**********TO DO***********TO DO*********************
+        /// Confirms the seed file exists and that it ends in a '.seed' extension
         /// </summary>
-        /// <param name="options"></param>
-        public static void OpenSeed(List<string> userInput, out string seedFile)
+        /// <param name="userInput"></param>
+        /// <param name="seedFile"></param>
+        private void OpenSeed(List<string> userInput, out string seedFile)
         {
-            seedFile = "None";  // Default value
+            seedFile = this.seedFile;  // Default value
             int numExpectedArgs = 2;
             string file;
             string extension = ".seed";
@@ -247,8 +255,8 @@ namespace Life
                 }
                 else
                 {
-                    Console.WriteLine("The seed file provided is not valid. Please ensure you type the path or file name correctly," +
-                        " and that the file ends in '.seed'.");
+                    Console.WriteLine("WARNING: The seed file provided is not valid. " +
+                        "Please ensure you type the path or file name correctly, and that the file ends in '.seed'.");
                 }
             }
             else
@@ -263,10 +271,11 @@ namespace Life
         /// Stays at the default value if user input is invalid.
         /// </summary>
         /// <param name="userInput"></param>
-        /// <param name="gens"></param>
-        public static void ChangeGenerations(List<string> userInput, out int gens)
+        /// <param name="generations"></param>
+        private void ChangeGenerations(List<string> userInput, out int generations)
         {
-            gens = 50;   //  The default value
+            generations = this.generations;   // Default value
+            string defaultMsg = $"Using default {generations} generations.";
             int numExpectedArgs = 2;
             int userGens;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
@@ -275,17 +284,19 @@ namespace Life
             {
                 if (Int32.TryParse(userInput[1], out userGens) && userGens > 0)
                 {
-                    gens = userGens;
+                    generations = userGens;
                 }
                 else
                 {
-                    Console.WriteLine("Number of generations must be a positive, non-zero integer.");
+                    Console.WriteLine("WARNING: --generations must be a positive, non-zero integer.");
+                    Console.WriteLine(" - " + defaultMsg);
                 }
             }
             else
             {
                 Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
                     + " Please specify a single positive, non-zero integer.");
+                Console.WriteLine(" - " + defaultMsg);
             }   
         }
 
@@ -294,10 +305,11 @@ namespace Life
         /// Stays at the default value if user input is invalid.
         /// </summary>
         /// <param name="userInput"></param>
-        /// <param name="ups"></param>
-        public static void ChangeMaxUPS(List<string> userInput, out float ups)
+        /// <param name="updateRate"></param>
+        private void ChangeMaxUPS(List<string> userInput, out float updateRate)
         {
-            ups = 5;    //  The default value
+            updateRate = this.updateRate;    // Default value
+            string defaultMsg = $"Using default {updateRate} generations / second.";
             int numExpectedArgs = 2;
             float userUPS;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
@@ -306,17 +318,19 @@ namespace Life
             {
                 if (float.TryParse(userInput[1], out userUPS) && (userUPS >= 1 && userUPS <= 30))
                 {
-                    ups = userUPS;
+                    updateRate = userUPS;
                 }
                 else
                 {
-                    Console.WriteLine("Number of updates per second must be a float between 1 and 30 inclusive.");
+                    Console.WriteLine("WARNING: --max-update must be a floating point value between 1 and 30 inclusive.");
+                    Console.WriteLine(" - " + defaultMsg);
                 }
             }
             else
             {
                 Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
                     + " Please specify a single float parameter between 1 and 30 inclusive.");
+                Console.WriteLine(" - " + defaultMsg);
             }
         }
     }

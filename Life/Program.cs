@@ -16,23 +16,19 @@ namespace Life
             if (firstOption != -1 && ((userInput = ParseArguments(args, firstOption)).Count) != 0)
             {
                 gameSettings = new Settings(userInput);
-                Console.WriteLine("Setting up game with the following values:");
+                Console.WriteLine("\nSetting up game with the following values:\n");
             }
             else
             {
                 gameSettings = new Settings();
-                Console.WriteLine("Setting up game with default values:");
+                Console.WriteLine("\nNo valid arguments provided, playing with default settings:\n");
             }
 
             Game game = new Game(gameSettings);
 
             game.PrintSettings();
-            Console.WriteLine("Press any key to start...");
-            Console.ReadKey();
-
             game.CycleThroughGame();
             game.RenderFinalGrid();
-
         }
 
         /// <summary>
@@ -45,25 +41,17 @@ namespace Life
         /// </returns>
         public static int CheckForArguments(string[] args)
         {
-            if (args.Length == 0)
+            for (int i = 0; i < args.Length; i++)
             {
-                Console.WriteLine("You have not provided any arguments, reverting to defaults!");
-            }
-            else
-            {
-                for (int i = 0; i < args.Length; i++)
+                if (!args[i].StartsWith("--"))
                 {
-                    if (!args[i].StartsWith("--"))
-                    {
-                        Console.WriteLine($"Parameter {args[i]} has been ignored as it was not preceded by an option...");
-                    }
-                    else
-                    {
-                        return i;
-                    }
+                    Console.WriteLine($"Parameter '{args[i]}' has been ignored as it was not preceded by an option.");
+                }
+                else
+                {
+                    return i;
                 }
             }
-
             return -1;
         }
 
@@ -87,11 +75,11 @@ namespace Life
                 {
                     if (args[i].StartsWith("--"))
                     {
-                        Console.WriteLine($"{args[i]} is not a valid option.");
+                        Console.WriteLine($"'{args[i]}' is not a valid option.");
                     }
                     else
                     {
-                        Console.WriteLine($"Parameter {args[i]} preceeded by invalid option.");
+                        Console.WriteLine($"Parameter '{args[i]}' preceeded by invalid option.");
                     }
                     
                 }

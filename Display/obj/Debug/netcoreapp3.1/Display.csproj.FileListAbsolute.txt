@@ -1,9 +1,0 @@
-C:\Users\trema\Dropbox\ADMIN DOCS\Uni\2020\Semester 2\CAB201\Assessment Part 1\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\CAB201_2020S2_ProjectPartA_nXXXXXXXX\Life\Display\bin\Debug\netcoreapp3.1\display.deps.json
-C:\Users\trema\Dropbox\ADMIN DOCS\Uni\2020\Semester 2\CAB201\Assessment Part 1\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\CAB201_2020S2_ProjectPartA_nXXXXXXXX\Life\Display\bin\Debug\netcoreapp3.1\display.dll
-C:\Users\trema\Dropbox\ADMIN DOCS\Uni\2020\Semester 2\CAB201\Assessment Part 1\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\CAB201_2020S2_ProjectPartA_nXXXXXXXX\Life\Display\bin\Debug\netcoreapp3.1\display.pdb
-C:\Users\trema\Dropbox\ADMIN DOCS\Uni\2020\Semester 2\CAB201\Assessment Part 1\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\CAB201_2020S2_ProjectPartA_nXXXXXXXX\Life\Display\obj\Debug\netcoreapp3.1\Display.csprojAssemblyReference.cache
-C:\Users\trema\Dropbox\ADMIN DOCS\Uni\2020\Semester 2\CAB201\Assessment Part 1\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\CAB201_2020S2_ProjectPartA_nXXXXXXXX\Life\Display\obj\Debug\netcoreapp3.1\Display.AssemblyInfoInputs.cache
-C:\Users\trema\Dropbox\ADMIN DOCS\Uni\2020\Semester 2\CAB201\Assessment Part 1\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\CAB201_2020S2_ProjectPartA_nXXXXXXXX\Life\Display\obj\Debug\netcoreapp3.1\Display.AssemblyInfo.cs
-C:\Users\trema\Dropbox\ADMIN DOCS\Uni\2020\Semester 2\CAB201\Assessment Part 1\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\CAB201_2020S2_ProjectPartA_nXXXXXXXX\Life\Display\obj\Debug\netcoreapp3.1\Display.csproj.CoreCompileInputs.cache
-C:\Users\trema\Dropbox\ADMIN DOCS\Uni\2020\Semester 2\CAB201\Assessment Part 1\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\CAB201_2020S2_ProjectPartA_nXXXXXXXX\Life\Display\obj\Debug\netcoreapp3.1\display.dll
-C:\Users\trema\Dropbox\ADMIN DOCS\Uni\2020\Semester 2\CAB201\Assessment Part 1\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\CAB201_2020S2_ProjectPartA_nXXXXXXXX\Life\Display\obj\Debug\netcoreapp3.1\display.pdb

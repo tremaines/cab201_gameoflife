@@ -2,7 +2,7 @@
   "profiles": {
     "Life": {
       "commandName": "Project",
-      "commandLineArgs": "--seed glider.seed --periodic --dimensions 10 10 --generations 100 --max-update 20"
+      "commandLineArgs": "--seed \"C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\Seeds\\worker_bee_15x20.seed\""
     }
   }
 }

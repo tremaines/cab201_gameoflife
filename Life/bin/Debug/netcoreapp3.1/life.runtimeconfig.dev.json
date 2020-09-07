@@ -1,8 +1,0 @@
-{
-  "runtimeOptions": {
-    "additionalProbingPaths": [
-      "C:\\Users\\trema\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\trema\\.nuget\\packages"
-    ]
-  }
-}
