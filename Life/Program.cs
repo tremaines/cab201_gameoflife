@@ -9,21 +9,7 @@ namespace Life
     {
         static void Main(string[] args)
         {
-            int firstOption = CheckForArguments(args);
-            List<List<string>> userInput;
-            Settings gameSettings;
-
-            if (firstOption != -1 && ((userInput = ParseArguments(args, firstOption)).Count) != 0)
-            {
-                gameSettings = new Settings(userInput);
-                Console.WriteLine("\nSetting up game with the following values:\n");
-            }
-            else
-            {
-                gameSettings = new Settings();
-                Console.WriteLine("\nNo valid arguments provided, playing with default settings:\n");
-            }
-
+            Settings gameSettings = GenerateGameSettings(args);
             Game game = new Game(gameSettings);
 
             game.PrintSettings();
@@ -35,7 +21,7 @@ namespace Life
         /// Parses a list of strings to group options (beginning with "--") with their parameters
         /// as entered by the user. This doesn't do any validation, just checks if there are any options.
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="args">The string array of args to be checked</param>
         /// <returns>
         /// Returns the index of the first seemingly valid option, otherwise returns -1 if no arguments or no seemingly valid options
         /// </returns>
@@ -59,8 +45,8 @@ namespace Life
         /// Checks the options the user has entered and confirms they are valid. If they are,
         /// it groups the options with any parameters that follow. Does NOT validate parameters.
         /// </summary>
-        /// <param name="args"></param>
-        /// <param name="firstUserOption"></param>
+        /// <param name="args">The string aray of args to be parsed</param>
+        /// <param name="firstUserOption">The index at which the first --option appears</param>
         /// <returns>A list of lists, where each sub-list begins with an option followed by
         /// parameters the user entered.
         /// </returns>
@@ -104,6 +90,33 @@ namespace Life
                 }
             }
             return userArguments;
+        }
+
+        /// <summary>
+        /// Takes the array of string arguments and checks them through the CheckForArguments and ParseArguments
+        /// methods.
+        /// </summary>
+        /// <param name="args">The string array of args entered into the console</param>
+        /// <returns>
+        /// An instance of the Settings class to use for a new Game of Life
+        /// </returns>
+        public static Settings GenerateGameSettings(string[] args)
+        {
+            int firstOption = CheckForArguments(args);
+            List<List<string>> userInput;
+            Settings gameSettings;
+
+            if (firstOption != -1 && ((userInput = ParseArguments(args, firstOption)).Count) != 0)
+            {
+                gameSettings = new Settings(userInput);
+                Console.WriteLine("\nSetting up game with the following values:\n");
+            }
+            else
+            {
+                gameSettings = new Settings();
+                Console.WriteLine("\nNo valid arguments provided, playing with default settings:\n");
+            }
+            return gameSettings;
         }
     }
 }

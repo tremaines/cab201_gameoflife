@@ -10,7 +10,7 @@ using System.Data;
 namespace Life
 { 
     /// <summary>
-    /// The game class use a Settings object to play the Game of Life according to the variables
+    /// The game class uses a Settings object to play the Game of Life according to the variables
     /// of the Settings instance.
     /// </summary>
     /// <author>
@@ -34,7 +34,7 @@ namespace Life
         /// Constructor for a new game of life. Takes in the game settings and sets up a new "board" using
         /// the statusArray variable.
         /// </summary>
-        /// <param name="settings"></param>
+        /// <param name="settings">An instance of the Settings class</param>
         public Game(Settings settings)
         {
             this.settings = settings;
@@ -55,8 +55,8 @@ namespace Life
                 $"\t   No. of Generations: {settings.Generations}\n" +
                 $"\t          Update Rate: {settings.UpdateRate} generations / second\n" +
                 $"\t    Step Mode Enabled: {settings.StepMode}");
-            Console.WriteLine("\nPress any key to start...");
-            Console.ReadKey();
+            Console.WriteLine("\nPress SPACE to start...");
+            CheckForSpace();
         }
 
         /// <summary>
@@ -114,13 +114,13 @@ namespace Life
             }
             else
             {
-                float chance = settings.Random * 100;
+                double chance = settings.Random;
                 Random random = new Random();
                 for (int r = 0; r < settings.Rows; r++)
                 {
                     for (int c = 0; c < settings.Columns; c++)
                     {
-                        if (chance > random.Next(100))
+                        if (chance > random.NextDouble())
                         {
                             grid.UpdateCell(r, c, CellState.Full);
                             statusArray[r, c] = DeadOrAlive.alive;
@@ -139,6 +139,7 @@ namespace Life
             string fileName = settings.SeedFile;
             using (StreamReader reader = new StreamReader(fileName))
             {
+                // First line of a seed file is not relevant, so read it to get it out of the way
                 reader.ReadLine();
                 char delimiter = ' ';
                 string line;
@@ -172,8 +173,8 @@ namespace Life
                     Console.WriteLine("\nWARNING! Game will continue but some cells in seed file are out of bounds:");
                     Console.WriteLine($"  - Recommended minimum dimensions based on seed file: {rowMax + 1} rows " +
                                       $"X {colMax + 1} columns.");
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadKey();
+                    Console.WriteLine("Press SPACE to continue...");
+                    CheckForSpace();
                 }
             }
         }
@@ -181,8 +182,8 @@ namespace Life
         /// <summary>
         /// Updates the value of the variable storing the maximum dimension in a seed file
         /// </summary>
-        /// <param name="seedValue"></param>
-        /// <param name="maxValue"></param>
+        /// <param name="seedValue">Seed value to check</param>
+        /// <param name="maxValue">Current max value</param>
         private void CheckSeedValues(int seedValue, ref int maxValue)
         {
             if (seedValue > maxValue)
@@ -194,8 +195,8 @@ namespace Life
         /// <summary>
         /// Checks the 8 neighbours of a cell and counts the number of living neighbours it has
         /// </summary>
-        /// <param name="row"></param>
-        /// <param name="column"></param>
+        /// <param name="row">Row of cell (alias for dimension 0 statusArray)</param>
+        /// <param name="column">Column of cell (alias for dimensions 1 of statusArray)</param>
         /// <returns>The total number of living neighbours of the cell</returns>
         private int CheckNeighbours(int row, int column)
         {

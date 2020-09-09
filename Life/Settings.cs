@@ -31,7 +31,7 @@ namespace Life
         private int rows = 16; 
         private int columns = 16;
         private bool periodic = false;
-        private float random = 0.5F;
+        private double random = 0.5F;
         private string seedFile = "None";
         private int generations = 50;
         private float updateRate = 5;
@@ -42,7 +42,7 @@ namespace Life
         public int Rows { get { return rows; } }
         public int Columns { get { return columns; } }
         public bool Periodic { get { return periodic; } }
-        public float Random { get { return random; } }
+        public double Random { get { return random; } }
         public string SeedFile { get { return seedFile; } }
         public int Generations { get { return generations; } }
         public float UpdateRate { get { return updateRate; } }
@@ -58,7 +58,7 @@ namespace Life
         /// It traverses the list of lists and calls the relevant validity-check method for any
         /// options entered by the user.
         /// </summary>
-        /// <param name="userArgs"></param>
+        /// <param name="userArgs">List of lists containing options and parameters</param>
         public Settings(List<List<string>> userArgs)
             {
                 userArgs.ForEach(delegate (List<string> options)
@@ -96,8 +96,8 @@ namespace Life
         /// This subtracts the number of arguments expected when an option is called by a user
         /// verse the number received by the user. NB, the number expected includes the --option argument.
         /// </summary>
-        /// <param name="numReceived"></param>
-        /// <param name="numExpected"></param>
+        /// <param name="numReceived">Actual number of arguments received (including option)</param>
+        /// <param name="numExpected">Expected number</param>
         /// <returns>
         /// The difference between the number of arguments received and number expected.
         /// </returns>
@@ -109,8 +109,8 @@ namespace Life
         /// <summary>
         /// Produces a generic error message if the arg count difference != 0
         /// </summary>
-        /// <param name="option"></param>
-        /// <param name="difference"></param>
+        /// <param name="option">The option argument</param>
+        /// <param name="difference">The difference between args received and expected</param>
         /// <returns>
         /// A string to use print out. Can append more specific information depending on the option.
         /// </returns>
@@ -130,14 +130,14 @@ namespace Life
         /// Validates the parameters entered by the user for --dimensions and changes the rows
         /// and columns attribute accordingly. If the user input is invalid, the default value is retained.
         /// </summary>
-        /// <param name="userInput"></param>
-        /// <param name="rows"></param>
-        /// <param name="columns"></param>
+        /// <param name="userInput">List containing --dimension and user-entered parameters</param>
+        /// <param name="rows">Variable to output num of rows to</param>
+        /// <param name="columns">Variable to output num of columns to</param>
         private void Dimensions(List<String> userInput, out int rows, out int columns)
         {
             rows = this.rows;  //  These are the default values
             columns = this.columns;  //  and will only be changed if the user input is valid!
-            string defaultMsg = $"Using default {rows} rows X {columns} columns";
+            string defaultMsg = $"Using default: {rows} rows X {columns} columns";
             int userRows, userCols;
             int numExpectedArgs = 3;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
@@ -171,7 +171,7 @@ namespace Life
         /// enters after them. This functions will check for any parameters and let the user know it doesn't know
         /// what to do with them.
         /// </summary>
-        /// <param name="userInput"></param>
+        /// <param name="userInput">List containing --periodic or --step and any parameters</param>
         private void PeriodicAndStep(List<string> userInput, out bool status)
         {
             int numExpectedArgs = 1;
@@ -184,6 +184,7 @@ namespace Life
                 Console.Write($"Unknow parameter(s) for {userInput[0]}: ");
                 for (int i = numExpectedArgs; i < userInput.Count; i++)
                 {
+                    // If we are at the last parameter, put a new line char (and no comma obviously)
                     if (i + 1 == userInput.Count)
                     {
                         Console.WriteLine($"'{userInput[i]}'");
@@ -202,20 +203,19 @@ namespace Life
         /// Validates the parameter for --random and changes the random attribute accordingly.
         /// Stays at the default value if invalid user input.
         /// </summary>
-        /// <param name="userInput"></param>
-        /// <param name="random"></param>
-        private void RandomFactor(List<string> userInput, out float random)
+        /// <param name="userInput">List containing --random and any parameters</param>
+        /// <param name="random">Variable to output random setting to</param>
+        private void RandomFactor(List<string> userInput, out double random)
         {
-            
             random = this.random;  // Default value
-            string defaultMsg = $"Using default {random:P2}";
-            float userRand;
+            string defaultMsg = $"Using default: {random:P2}";
+            double userRand;
             int numExpectedArgs = 2;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
 
             if (argCountDifference == 0)
             {
-                if ((float.TryParse(userInput[1], out userRand)) && (userRand >= 0 && userRand <= 1))
+                if ((double.TryParse(userInput[1], out userRand)) && (userRand >= 0 && userRand <= 1))
                 {
                     random = userRand;
                 }
@@ -228,7 +228,7 @@ namespace Life
             else
             {
                 Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
-                    + " Please specify a single floating point parameter between 0 and 1 inclusive.");
+                    + " Please specify a single floating point value between 0 and 1 inclusive.");
                 Console.WriteLine(" - " + defaultMsg);
             }
         }
@@ -236,8 +236,8 @@ namespace Life
         /// <summary>
         /// Confirms the seed file exists and that it ends in a '.seed' extension
         /// </summary>
-        /// <param name="userInput"></param>
-        /// <param name="seedFile"></param>
+        /// <param name="userInput">List containing --seed and any parameters</param>
+        /// <param name="seedFile">Variable to output seed file to</param>
         private void OpenSeed(List<string> userInput, out string seedFile)
         {
             seedFile = this.seedFile;  // Default value
@@ -270,12 +270,12 @@ namespace Life
         /// Validates the parameter for --generations and changes the generations attribute accordingly.
         /// Stays at the default value if user input is invalid.
         /// </summary>
-        /// <param name="userInput"></param>
-        /// <param name="generations"></param>
+        /// <param name="userInput">List containing --generations and any parameters</param>
+        /// <param name="generations">Variable to output no. of generations to</param>
         private void ChangeGenerations(List<string> userInput, out int generations)
         {
             generations = this.generations;   // Default value
-            string defaultMsg = $"Using default {generations} generations.";
+            string defaultMsg = $"Using default: {generations} generations.";
             int numExpectedArgs = 2;
             int userGens;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
@@ -304,12 +304,12 @@ namespace Life
         /// Validates the parameter for --max-update and changes the updateRate attribute accordingly.
         /// Stays at the default value if user input is invalid.
         /// </summary>
-        /// <param name="userInput"></param>
-        /// <param name="updateRate"></param>
+        /// <param name="userInput">List containing --max-update and any parameters</param>
+        /// <param name="updateRate">Variable to output update rate to</param>
         private void ChangeMaxUPS(List<string> userInput, out float updateRate)
         {
             updateRate = this.updateRate;    // Default value
-            string defaultMsg = $"Using default {updateRate} generations / second.";
+            string defaultMsg = $"Using default: {updateRate} generations / second.";
             int numExpectedArgs = 2;
             float userUPS;
             int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
@@ -329,7 +329,7 @@ namespace Life
             else
             {
                 Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
-                    + " Please specify a single float parameter between 1 and 30 inclusive.");
+                    + " Please specify a single floating point value between 1 and 30 inclusive.");
                 Console.WriteLine(" - " + defaultMsg);
             }
         }
