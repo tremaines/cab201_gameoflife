@@ -36,6 +36,7 @@ namespace Life
         private int generations = 50;
         private float updateRate = 5;
         private bool stepMode = false;
+        private List<string> successMsgs = new List<string>();
 
         //  Settings properties
 
@@ -60,37 +61,49 @@ namespace Life
         /// </summary>
         /// <param name="userArgs">List of lists containing options and parameters</param>
         public Settings(List<List<string>> userArgs)
+        {
+            userArgs.ForEach(delegate (List<string> options)
             {
-                userArgs.ForEach(delegate (List<string> options)
+                switch (options[0])
                 {
-                    switch (options[0])
-                    {
-                        case "--dimensions":
-                            Dimensions(options, out rows, out columns);
-                            break;
-                        case "--periodic":
-                            PeriodicAndStep(options, out periodic);
-                            break;
-                        case "--random":
-                            RandomFactor(options, out random);
-                            break;
-                        case "--seed":
-                            OpenSeed(options, out seedFile);
-                            break;
-                        case "--generations":
-                            ChangeGenerations(options, out generations);
-                            break;
-                        case "--max-update":
-                            ChangeMaxUPS(options, out updateRate);
-                            break;
-                        case "--step":
-                            PeriodicAndStep(options, out stepMode);
-                            break;
-                        default:
-                            break;
-                    }
+                    case "--dimensions":
+                        Dimensions(options, out rows, out columns);
+                        break;
+                    case "--periodic":
+                        PeriodicAndStep(options, out periodic);
+                        break;
+                    case "--random":
+                        RandomFactor(options, out random);
+                        break;
+                    case "--seed":
+                        OpenSeed(options, out seedFile);
+                        break;
+                    case "--generations":
+                        ChangeGenerations(options, out generations);
+                        break;
+                    case "--max-update":
+                        ChangeMaxUPS(options, out updateRate);
+                        break;
+                    case "--step":
+                        PeriodicAndStep(options, out stepMode);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            if (successMsgs.Count != 0)
+            {
+                // Get the user's current console text colour first so we can change it back
+                ConsoleColor defaultColour = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("\nThe following settings have been successfully updated:");
+                successMsgs.ForEach(delegate (string option)
+                {
+                    Console.WriteLine($"  {option}");
                 });
+                Console.ForegroundColor = defaultColour;
             }
+        }
 
         /// <summary>
         /// This subtracts the number of arguments expected when an option is called by a user
@@ -151,6 +164,7 @@ namespace Life
                 {
                     rows = userRows;
                     columns = userCols;
+                    successMsgs.Add(userInput[0]);
                 }
                 else
                 {
@@ -194,8 +208,12 @@ namespace Life
                         Console.Write($"'{userInput[i]}', ");
                     }
                 }
-                Console.WriteLine($"WARNING: {userInput[0]} has been set to TRUE but, for future reference, " +
+                Console.WriteLine($"WARNING: {userInput[0]} has been enabled but, for future reference, " +
                     $"does not require parameters.");
+            }
+            else
+            {
+                successMsgs.Add(userInput[0]);
             }
         }
 
@@ -218,6 +236,7 @@ namespace Life
                 if ((double.TryParse(userInput[1], out userRand)) && (userRand >= 0 && userRand <= 1))
                 {
                     random = userRand;
+                    successMsgs.Add(userInput[0]);
                 }
                 else
                 {
@@ -252,6 +271,7 @@ namespace Life
                 if (File.Exists(file) && (Path.GetExtension(file) == extension))
                 {
                     seedFile = file;
+                    successMsgs.Add(userInput[0]);
                 }
                 else
                 {
@@ -285,6 +305,7 @@ namespace Life
                 if (Int32.TryParse(userInput[1], out userGens) && userGens > 0)
                 {
                     generations = userGens;
+                    successMsgs.Add(userInput[0]);
                 }
                 else
                 {
@@ -319,6 +340,7 @@ namespace Life
                 if (float.TryParse(userInput[1], out userUPS) && (userUPS >= 1 && userUPS <= 30))
                 {
                     updateRate = userUPS;
+                    successMsgs.Add(userInput[0]);
                 }
                 else
                 {

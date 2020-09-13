@@ -61,13 +61,12 @@ namespace Life
                 {
                     if (args[i].StartsWith("--"))
                     {
-                        Console.WriteLine($"'{args[i]}' is not a valid option.");
+                        Console.WriteLine($"WARNING: '{args[i]}' is not a valid option.");
                     }
                     else
                     {
-                        Console.WriteLine($"Parameter '{args[i]}' preceeded by invalid option.");
-                    }
-                    
+                        Console.WriteLine($"WARNING: Parameter '{args[i]}' preceeded by invalid option.");
+                    } 
                 }
                 else
                 {

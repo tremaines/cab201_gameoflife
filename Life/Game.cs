@@ -55,6 +55,10 @@ namespace Life
                 $"\t   No. of Generations: {settings.Generations}\n" +
                 $"\t          Update Rate: {settings.UpdateRate} generations / second\n" +
                 $"\t    Step Mode Enabled: {settings.StepMode}");
+            if (settings.SeedFile != "None")
+            {
+                Console.WriteLine("\nRandom factor will be ignored as a valid seed file has been provided!");
+            }
             Console.WriteLine("\nPress SPACE to start...");
             CheckForSpace();
         }
