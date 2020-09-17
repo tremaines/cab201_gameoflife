@@ -89,7 +89,7 @@ namespace Life
                 {
                     while (watch.ElapsedMilliseconds < ((1 / settings.UpdateRate) * 1000)) ;
                 }
-                statusArray = NextGenerationStatus();
+                statusArray = CreateNextGeneration();
             }
         }
 
@@ -234,7 +234,7 @@ namespace Life
         /// Checks each cell against the rules of the Game of Life to determine their status next generation
         /// </summary>
         /// <returns>A 2D array of what the board will look like next generation</returns>
-        private DeadOrAlive[,] NextGenerationStatus()
+        private DeadOrAlive[,] CreateNextGeneration()
         {
             DeadOrAlive[,] nextGenStatusArray = new DeadOrAlive[settings.Rows, settings.Columns];
             for (int r = 0; r < settings.Rows; r++)
@@ -292,10 +292,17 @@ namespace Life
         }
 
         /// <summary>
-        /// Loops until user pushes the spacebar key
+        /// Clears the console's stdin buffer to remove key presses made before the 'press space' prompt
+        /// appears, that way the program won't shoot past the prompt if the user has accidentally pushed space
+        /// prior to the prompt appearing. Then loops until the user does press space.
         /// </summary>
         private void CheckForSpace()
         {
+            while (Console.KeyAvailable)
+            {
+                Console.ReadKey(true);
+            }
+
             ConsoleKeyInfo keyPress = Console.ReadKey(true);
             while(keyPress.KeyChar != ' ')
             {

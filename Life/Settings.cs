@@ -106,20 +106,6 @@ namespace Life
         }
 
         /// <summary>
-        /// This subtracts the number of arguments expected when an option is called by a user
-        /// verse the number received by the user. NB, the number expected includes the --option argument.
-        /// </summary>
-        /// <param name="numReceived">Actual number of arguments received (including option)</param>
-        /// <param name="numExpected">Expected number</param>
-        /// <returns>
-        /// The difference between the number of arguments received and number expected.
-        /// </returns>
-        private int CheckNumOfArgs(int numReceived, int numExpected)
-        {
-            return numReceived - numExpected;
-        }
-
-        /// <summary>
         /// Produces a generic error message if the arg count difference != 0
         /// </summary>
         /// <param name="option">The option argument</param>
@@ -153,7 +139,7 @@ namespace Life
             string defaultMsg = $"Using default: {rows} rows X {columns} columns";
             int userRows, userCols;
             int numExpectedArgs = 3;
-            int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
+            int argCountDifference = userInput.Count.CompareTo(numExpectedArgs);
 
             //  Check user has entered two parameters (one for rows and one for columns)
             if (argCountDifference == 0)
@@ -189,13 +175,15 @@ namespace Life
         private void PeriodicAndStep(List<string> userInput, out bool status)
         {
             int numExpectedArgs = 1;
+            int argCountDifference = userInput.Count.CompareTo(numExpectedArgs);
             // If --periodic and/or --step are called, set to true regardless of any parameters that follow
             status = true;
+            successMsgs.Add(userInput[0]);
 
             // If the user has provided parameters, let the user know they have been ignored
-            if (CheckNumOfArgs(userInput.Count, numExpectedArgs) != 0)
+            if (argCountDifference != 0)
             {
-                Console.Write($"Unknow parameter(s) for {userInput[0]}: ");
+                Console.Write($"WARNING: {userInput[0]} enabled but the following parameters have been ignored: ");
                 for (int i = numExpectedArgs; i < userInput.Count; i++)
                 {
                     // If we are at the last parameter, put a new line char (and no comma obviously)
@@ -208,12 +196,6 @@ namespace Life
                         Console.Write($"'{userInput[i]}', ");
                     }
                 }
-                Console.WriteLine($"WARNING: {userInput[0]} has been enabled but, for future reference, " +
-                    $"does not require parameters.");
-            }
-            else
-            {
-                successMsgs.Add(userInput[0]);
             }
         }
 
@@ -229,7 +211,7 @@ namespace Life
             string defaultMsg = $"Using default: {random:P2}";
             double userRand;
             int numExpectedArgs = 2;
-            int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
+            int argCountDifference = userInput.Count.CompareTo(numExpectedArgs);
 
             if (argCountDifference == 0)
             {
@@ -263,8 +245,8 @@ namespace Life
             int numExpectedArgs = 2;
             string file;
             string extension = ".seed";
-            int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
-            
+            int argCountDifference = userInput.Count.CompareTo(numExpectedArgs);
+
             if (argCountDifference == 0)
             {
                 file = userInput[1];
@@ -298,7 +280,7 @@ namespace Life
             string defaultMsg = $"Using default: {generations} generations.";
             int numExpectedArgs = 2;
             int userGens;
-            int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
+            int argCountDifference = userInput.Count.CompareTo(numExpectedArgs);
 
             if (argCountDifference == 0)
             {
@@ -333,7 +315,7 @@ namespace Life
             string defaultMsg = $"Using default: {updateRate} generations / second.";
             int numExpectedArgs = 2;
             float userUPS;
-            int argCountDifference = CheckNumOfArgs(userInput.Count, numExpectedArgs);
+            int argCountDifference = userInput.Count.CompareTo(numExpectedArgs);
 
             if (argCountDifference == 0)
             {
