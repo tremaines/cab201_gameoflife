@@ -9,10 +9,11 @@ namespace Life
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("");
             Settings gameSettings = GenerateGameSettings(args);
             Game game = new Game(gameSettings);
 
-            game.PrintSettings();
+            game.PrintMsgsAndSettings();
             game.CycleThroughGame();
             game.RenderFinalGrid();
         }
@@ -31,7 +32,7 @@ namespace Life
             {
                 if (!args[i].StartsWith("--"))
                 {
-                    Console.WriteLine($"Parameter '{args[i]}' has been ignored as it was not preceded by an option.");
+                    Console.WriteLine($"WARNING:'{args[i]}' has been ignored as it was not preceded by an option.");
                 }
                 else
                 {
@@ -65,7 +66,7 @@ namespace Life
                     }
                     else
                     {
-                        Console.WriteLine($"WARNING: Parameter '{args[i]}' preceeded by invalid option.");
+                        Console.WriteLine($"WARNING: '{args[i]}' preceded by invalid option.");
                     } 
                 }
                 else
@@ -108,12 +109,12 @@ namespace Life
             if (firstOption != -1 && ((userInput = ParseArguments(args, firstOption)).Count) != 0)
             {
                 gameSettings = new Settings(userInput);
-                Console.WriteLine("\nSetting up game with the following values:\n");
+                Console.WriteLine("\nValid arguments detected, processing parameters...\n");
             }
             else
             {
                 gameSettings = new Settings();
-                Console.WriteLine("\nNo valid arguments provided, playing with default settings:\n");
+                Console.WriteLine("\nNo valid arguments provided...\n");
             }
             return gameSettings;
         }

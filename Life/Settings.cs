@@ -36,6 +36,7 @@ namespace Life
         private int generations = 50;
         private float updateRate = 5;
         private bool stepMode = false;
+        private List<string> errorMsgs = new List<string>();
         private List<string> successMsgs = new List<string>();
 
         //  Settings properties
@@ -48,6 +49,8 @@ namespace Life
         public int Generations { get { return generations; } }
         public float UpdateRate { get { return updateRate; } }
         public bool StepMode { get { return stepMode; } }
+        public List<string> ErrorMsgs { get { return errorMsgs; } }
+        public List<string> SuccessMsgs { get { return successMsgs; } }
 
         /// <summary>
         /// Default constructor, called when user doesn't change settings or doesn't enter any valid --options.
@@ -91,18 +94,6 @@ namespace Life
                         break;
                 }
             });
-            if (successMsgs.Count != 0)
-            {
-                // Get the user's current console text colour first so we can change it back
-                ConsoleColor defaultColour = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\nThe following settings have been successfully updated:");
-                successMsgs.ForEach(delegate (string option)
-                {
-                    Console.WriteLine($"  {option}");
-                });
-                Console.ForegroundColor = defaultColour;
-            }
         }
 
         /// <summary>
@@ -117,11 +108,11 @@ namespace Life
         {
             if (difference > 0)
             {
-                return $"WARNING: Too many parameters received for {option}.";
+                return $"Too many parameters received for {option}.";
             }
             else
             {
-                return $"WARNING: Not enough parameters received for {option}.";
+                return $"Not enough parameters received for {option}.";
             }
         }
 
@@ -154,15 +145,14 @@ namespace Life
                 }
                 else
                 {
-                    Console.WriteLine("WARNING: --dimensions requires two positive integers between 4 and 48 inclusive.");
-                    Console.WriteLine(" - " + defaultMsg);
+                    errorMsgs.Add("--dimensions requires two positive integers " +
+                        "between 4 and 48 inclusive.\n    - " + defaultMsg);
                 }
             }
             else
             {
-                Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference) 
-                    + " Please specify exactly TWO positive integers between 4 and 48 inclusive.");
-                Console.WriteLine(" - " + defaultMsg);
+                errorMsgs.Add(ParamCountErrorMessage(userInput[0], argCountDifference) 
+                    + " Please specify exactly TWO positive integers between 4 and 48 inclusive.\n    - " + defaultMsg);
             }
         }
 
@@ -183,17 +173,18 @@ namespace Life
             // If the user has provided parameters, let the user know they have been ignored
             if (argCountDifference != 0)
             {
-                Console.Write($"WARNING: {userInput[0]} enabled but the following parameters have been ignored: ");
+                string ignoreParams = ($"{userInput[0]} enabled but the following parameters have been ignored: ");
                 for (int i = numExpectedArgs; i < userInput.Count; i++)
                 {
-                    // If we are at the last parameter, put a new line char (and no comma obviously)
+                    // If we are at the last parameter, add to the errorMsgs list
                     if (i + 1 == userInput.Count)
                     {
-                        Console.WriteLine($"'{userInput[i]}'");
+                        ignoreParams += ($"'{userInput[i]}'");
+                        errorMsgs.Add(ignoreParams);
                     }
                     else
                     {
-                        Console.Write($"'{userInput[i]}', ");
+                        ignoreParams += ($"'{userInput[i]}', ");
                     }
                 }
             }
@@ -222,15 +213,14 @@ namespace Life
                 }
                 else
                 {
-                    Console.WriteLine("WARNING: --random requires a floating point value between 0 and 1 inclusive.");
-                    Console.WriteLine(" - " + defaultMsg);
+                    errorMsgs.Add("--random requires a floating point value between 0 and 1 inclusive." +
+                        "\n    - " + defaultMsg);
                 }
             }
             else
             {
-                Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
-                    + " Please specify a single floating point value between 0 and 1 inclusive.");
-                Console.WriteLine(" - " + defaultMsg);
+                errorMsgs.Add(ParamCountErrorMessage(userInput[0], argCountDifference)
+                    + " Please specify a single floating point value between 0 and 1 inclusive.\n    - " + defaultMsg);
             }
         }
 
@@ -257,13 +247,13 @@ namespace Life
                 }
                 else
                 {
-                    Console.WriteLine("WARNING: The seed file provided is not valid. " +
+                    errorMsgs.Add("The seed file provided is not valid. " +
                         "Please ensure you type the path or file name correctly, and that the file ends in '.seed'.");
                 }
             }
             else
             {
-                Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
+                errorMsgs.Add(ParamCountErrorMessage(userInput[0], argCountDifference)
                    + " Please specify a single file name or path.");
             }
         }
@@ -291,15 +281,13 @@ namespace Life
                 }
                 else
                 {
-                    Console.WriteLine("WARNING: --generations must be a positive, non-zero integer.");
-                    Console.WriteLine(" - " + defaultMsg);
+                    errorMsgs.Add("--generations must be a positive, non-zero integer.\n    - " + defaultMsg);
                 }
             }
             else
             {
-                Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
-                    + " Please specify a single positive, non-zero integer.");
-                Console.WriteLine(" - " + defaultMsg);
+                errorMsgs.Add(ParamCountErrorMessage(userInput[0], argCountDifference)
+                    + " Please specify a single positive, non-zero integer.\n    - " + defaultMsg);
             }   
         }
 
@@ -326,15 +314,14 @@ namespace Life
                 }
                 else
                 {
-                    Console.WriteLine("WARNING: --max-update must be a floating point value between 1 and 30 inclusive.");
-                    Console.WriteLine(" - " + defaultMsg);
+                    errorMsgs.Add("--max-update must be a floating point value between 1 and " +
+                        "30 inclusive.\n    - " + defaultMsg);
                 }
             }
             else
             {
-                Console.WriteLine(ParamCountErrorMessage(userInput[0], argCountDifference)
-                    + " Please specify a single floating point value between 1 and 30 inclusive.");
-                Console.WriteLine(" - " + defaultMsg);
+                errorMsgs.Add(ParamCountErrorMessage(userInput[0], argCountDifference)
+                    + " Please specify a single floating point value between 1 and 30 inclusive.\n    - " + defaultMsg);
             }
         }
     }

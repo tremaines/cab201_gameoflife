@@ -29,6 +29,7 @@ namespace Life
         private Settings settings;
         private Grid grid;
         private DeadOrAlive[,] statusArray;
+        private ConsoleColor defaultColour = Console.ForegroundColor;
 
         /// <summary>
         /// Constructor for a new game of life. Takes in the game settings and sets up a new "board" using
@@ -43,10 +44,31 @@ namespace Life
         }
 
         /// <summary>
-        /// Prints the settings used by this instance of the Game.
+        /// Prints the error and success messages for user and the settings that will be used to run the game
         /// </summary>
-        public void PrintSettings()
+        public void PrintMsgsAndSettings()
         {
+            if (settings.ErrorMsgs.Count != 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("WARNING: ");
+                settings.ErrorMsgs.ForEach(delegate (string error)
+                {
+                    Console.WriteLine($" > {error}");
+                });
+            }
+            if (settings.SuccessMsgs.Count != 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("\nThe following settings have been successfully updated:");
+                settings.SuccessMsgs.ForEach(delegate (string option)
+                {
+                    Console.WriteLine($"  {option}");
+                });
+            }
+            Console.ForegroundColor = defaultColour;
+
+            Console.WriteLine("\nSetting up game with the following values:\n");
             Console.WriteLine($"\t       Number of Rows: {settings.Rows}\n" +
                 $"\t    Number of Columns: {settings.Columns}\n" +
                 $"\tPeriodic Mode Enabled: {settings.Periodic}\n" +
@@ -174,10 +196,12 @@ namespace Life
                 // and column values
                 if (outOfBoundsValue)
                 {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("\nWARNING! Game will continue but some cells in seed file are out of bounds:");
                     Console.WriteLine($"  - Recommended minimum dimensions based on seed file: {rowMax + 1} rows " +
                                       $"X {colMax + 1} columns.");
-                    Console.WriteLine("Press SPACE to continue...");
+                    Console.ForegroundColor = defaultColour;
+                    Console.WriteLine("\nPress SPACE to continue...");
                     CheckForSpace();
                 }
             }
