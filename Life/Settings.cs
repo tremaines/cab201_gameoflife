@@ -117,16 +117,17 @@ namespace Life
         }
 
         /// <summary>
-        /// Validates the parameters entered by the user for --dimensions and changes the rows
-        /// and columns attribute accordingly. If the user input is invalid, the default value is retained.
+        /// Validates the parameters entered by the user for --dimensions and changes the rows and columns attributes
+        /// accordingly. If the user input is invalid, the default value is retained.
         /// </summary>
         /// <param name="userInput">List containing --dimension and user-entered parameters</param>
         /// <param name="rows">Variable to output num of rows to</param>
         /// <param name="columns">Variable to output num of columns to</param>
         private void Dimensions(List<String> userInput, out int rows, out int columns)
         {
-            rows = this.rows;  //  These are the default values
-            columns = this.columns;  //  and will only be changed if the user input is valid!
+            // Set rows and columns to default
+            rows = this.rows;
+            columns = this.columns;
             string defaultMsg = $"Using default: {rows} rows X {columns} columns";
             int userRows, userCols;
             int numExpectedArgs = 3;
@@ -145,8 +146,8 @@ namespace Life
                 }
                 else
                 {
-                    errorMsgs.Add("--dimensions requires two positive integers " +
-                        "between 4 and 48 inclusive.\n    - " + defaultMsg);
+                    errorMsgs.Add("--dimensions requires two positive integers, " +
+                        "both between 4 and 48 inclusive.\n    - " + defaultMsg);
                 }
             }
             else
@@ -166,7 +167,6 @@ namespace Life
         {
             int numExpectedArgs = 1;
             int argCountDifference = userInput.Count.CompareTo(numExpectedArgs);
-            // If --periodic and/or --step are called, set to true regardless of any parameters that follow
             status = true;
             successMsgs.Add(userInput[0]);
 
@@ -191,8 +191,8 @@ namespace Life
         }
 
         /// <summary>
-        /// Validates the parameter for --random and changes the random attribute accordingly.
-        /// Stays at the default value if invalid user input.
+        /// Validates the parameter for --random and changes the random attribute accordingly. Stays at the default 
+        /// value if invalid user input.
         /// </summary>
         /// <param name="userInput">List containing --random and any parameters</param>
         /// <param name="random">Variable to output random setting to</param>
@@ -231,7 +231,7 @@ namespace Life
         /// <param name="seedFile">Variable to output seed file to</param>
         private void OpenSeed(List<string> userInput, out string seedFile)
         {
-            seedFile = this.seedFile;  // Default value
+            seedFile = this.seedFile;
             int numExpectedArgs = 2;
             string file;
             string extension = ".seed";
@@ -299,7 +299,7 @@ namespace Life
         /// <param name="updateRate">Variable to output update rate to</param>
         private void ChangeMaxUPS(List<string> userInput, out float updateRate)
         {
-            updateRate = this.updateRate;    // Default value
+            updateRate = this.updateRate;
             string defaultMsg = $"Using default: {updateRate} generations / second.";
             int numExpectedArgs = 2;
             float userUPS;

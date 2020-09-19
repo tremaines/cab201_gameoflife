@@ -10,7 +10,7 @@ using System.Data;
 namespace Life
 { 
     /// <summary>
-    /// The game class uses a Settings object to play the Game of Life according to the variables
+    /// The game class uses a Settings object to play the Game of Life according to the fields
     /// of the Settings instance.
     /// </summary>
     /// <author>
@@ -32,8 +32,8 @@ namespace Life
         private ConsoleColor defaultColour = Console.ForegroundColor;
 
         /// <summary>
-        /// Constructor for a new game of life. Takes in the game settings and sets up a new "board" using
-        /// the statusArray variable.
+        /// Constructor for a new game of life. Takes in the game settings and sets up a new "board" using the 
+        /// statusArray variable.
         /// </summary>
         /// <param name="settings">An instance of the Settings class</param>
         public Game(Settings settings)
@@ -129,8 +129,8 @@ namespace Life
         }
 
         /// <summary>
-        /// Sets the initial state of the cells in generation 0 based on the seed file (if provided & valid)
-        /// or the random factor
+        /// Sets the initial state of the cells in generation 0 based on the seed file (if provided & valid) or the 
+        /// random factor
         /// </summary>
         private void SetInitialState()
         {
@@ -157,8 +157,8 @@ namespace Life
         }
 
         /// <summary>
-        /// Reads a seed file and sets cells to alive given the information in the seed file
-        /// if that cell is within the bounds of the board.
+        /// Reads a seed file and sets cells to alive given the information in the seed file IF that cell is within the
+        /// bounds of the board.
         /// </summary>
         private void ReadSeedFile()
         {
@@ -182,8 +182,8 @@ namespace Life
                     CheckSeedValues(row, ref rowMax);
                     CheckSeedValues(col, ref colMax);
 
-                    // If either the row or column value are out of bounds, continue through next iteration
-                    // of loop instead of changing cell to alive
+                    // If either the row or column value are out of bounds, continue through next iteration of loop 
+                    // instead of changing cell to alive
                     if (row + 1 > settings.Rows || col + 1 > settings.Columns)
                     {
                         outOfBoundsValue = true;
@@ -192,8 +192,7 @@ namespace Life
                     statusArray[row, col] = DeadOrAlive.alive;
                 }
                 
-                // If there were any out of bounds values, print recommended dimensions based on max row
-                // and column values
+                // If there were any out of bounds values, print recommended dimensions based on rowMax & colMax
                 if (outOfBoundsValue)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -223,7 +222,7 @@ namespace Life
         /// <summary>
         /// Checks the 8 neighbours of a cell and counts the number of living neighbours it has
         /// </summary>
-        /// <param name="row">Row of cell (alias for dimension 0 statusArray)</param>
+        /// <param name="row">Row of cell (alias for dimension 0 of statusArray)</param>
         /// <param name="column">Column of cell (alias for dimensions 1 of statusArray)</param>
         /// <returns>The total number of living neighbours of the cell</returns>
         private int CheckNeighbours(int row, int column)
@@ -237,12 +236,13 @@ namespace Life
                     int neighbourC = column + c;
                     if (!(r == 0 && c == 0))     // Don't want to count a cell as its own neighbour
                     {
+                        // If periodic is enabled, use that logic in checking the neighbours
                         if (settings.Periodic)
                         {
                             livingNeighbours += (int)statusArray[((neighbourR + settings.Rows) % settings.Rows),
                                 ((neighbourC + settings.Columns) % settings.Columns)];
                         }
-                        // Check if neighbour cell is within the bounds of the board
+                        // Otherwise check if neighbour cell is within the bounds of the board
                         else if ((neighbourR >= 0 && neighbourC >= 0) && 
                             (neighbourR < settings.Rows && neighbourC < settings.Columns))
                         {
