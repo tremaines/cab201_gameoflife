@@ -6,7 +6,7 @@ date: 13/09/2020
 
 ## Build Instructions
 
-1. Unzip the Project folder with your unzipper of choice.
+1. Unzip the folder with your unzipper of choice.
 2. Navigate into the "Life" folder.
 3. Double click the "Life.sln" file to open in Visual Studio.
 4. Once open, ensure the "Solution Configuration" (located below "Debug" and to the right of the undo and redo buttons) is set to release mode.
@@ -15,13 +15,32 @@ date: 13/09/2020
 ## Usage 
 
 ##### To Start a Game
-1. To run the Game of Life, you will first need to open up Windows command prompt.
+1. To run the Game of Life, you will first need to open up Windows Command Prompt.
 2. Type: `cd "C:\..\..\CAB201_2020S2_ProjectPartA_n10689877\Life\Life\bin\Release\netcoreapp3.1"`. You will need to replace `C:\..\..\` with your path to the CAB201_2020S2_ProjectPartA_n10689877 folder.
 3. Type: `dotnet Life.dll`
 4. Press `Enter` to start the game.
 
+*Alternatively:*
+1. Navigate to `CAB201_2020S2_ProjectPartA_n10689877\Life\Life\bin\Release\netcoreapp3.1`.
+2. Click into the address bar of the Windows Explorer window and press the `DEL` key.
+3. Type "cmd" and press `Enter`.
+4. This should open up a Command Prompt window pointed at the correct directory.
+
+
 ##### Optional Arguments
-If you start a game without entering any arguments, it will proceed with the default settings. However, if you'd prefer, you can alter settings with the following flags:
+If you start a game without entering any arguments, it will proceed with the default settings. These settings are as follows:
+|Setting           |Default Value            |
+|------------------|-------------------------|
+|No. of Rows       |16                       |
+|No. of Columns    |16                       |
+|Periodic Mode     |Disabled                 |
+|Random Factor     |50%                      |
+|Seed File         |None (uses random factor)|
+|No. of Generations|50                       |
+|Update Rate       |5 generations / second   |
+|Step Mode         |Disabled                 |
+
+However, if you'd prefer, you can alter settings with the following flags:
 |Flag/Option  |Function                                                                                       |Parameters                                                   |Example             |
 |-------------|-----------------------------------------------------------------------------------------------|-------------------------------------------------------------|--------------------|
 |--dimensions |Sets the number of rows and columns respectively.                                              |Exactly two whole numbers, between 4 & 48 inclusive.         |`--dimensions 16 16`|
@@ -40,7 +59,7 @@ Please note, the order of the arguments does not matter.
 ## Notes 
 
 * The number of parameters following options that require them is strict. Too many or too few will result in the parameters being ignored and the program reverting to defaults.
-    * For example, `--dimensions 30 23 42` contains too many parameters and the game will rever to the default number of rows and columns.
+    * For example, `--dimensions 30 23 42` contains too many parameters and the game will revert to the default number of rows and columns.
 * For arguments that take more than one parameter (just --dimensions at this stage), an invalid parameter will cause both parameters to revert to the default.
   * For example, `--dimensions 30 54`, contains a parameter outside the 4 - 48 range, causing BOTH parameters to revert to the default
 * When a valid seed file is called:
@@ -49,4 +68,4 @@ Please note, the order of the arguments does not matter.
 * If step mode is enabled:
   * The update rate will be ignored and the game will progress at 1 generation per press of the spacebar.
 * For parameterless flags (--step and --periodic):
-  * If these flags are called their respective modes will be enabled. Any parameters following them will be ignored by the program (and the user will be told as much).
+  * If these flags are called their respective modes will be enabled. Any parameters following them will be ignored by the program (the program will warn you this is the case).
