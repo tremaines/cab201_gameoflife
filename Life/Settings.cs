@@ -24,7 +24,13 @@ namespace Life
                                                                             "--seed",
                                                                             "--generations",
                                                                             "--max-update",
-                                                                            "--step"
+                                                                            "--step",
+                                                                            "--neighbour",
+                                                                            "--survival",
+                                                                            "--birth",
+                                                                            "--memory",
+                                                                            "--output",
+                                                                            "--ghost"
                                                                           };
 
         //  Settings fields, set to default values
@@ -41,16 +47,16 @@ namespace Life
 
         //  Settings properties
 
-        public int Rows { get { return rows; } }
-        public int Columns { get { return columns; } }
-        public bool Periodic { get { return periodic; } }
-        public double Random { get { return random; } }
-        public string SeedFile { get { return seedFile; } }
-        public int Generations { get { return generations; } }
-        public float UpdateRate { get { return updateRate; } }
-        public bool StepMode { get { return stepMode; } }
-        public List<string> ErrorMsgs { get { return errorMsgs; } }
-        public List<string> SuccessMsgs { get { return successMsgs; } }
+        public int Rows => rows;
+        public int Columns => columns;
+        public bool Periodic => periodic;
+        public double Random => random;
+        public string SeedFile => seedFile;
+        public int Generations => generations;
+        public float UpdateRate => updateRate;
+        public bool StepMode => stepMode;
+        public List<string> ErrorMsgs => errorMsgs;
+        public List<string> SuccessMsgs => successMsgs;
 
         /// <summary>
         /// Default constructor, called when user doesn't change settings or doesn't enter any valid --options.

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj": {}
+    "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj": {}
   },
   "projects": {
-    "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj": {
+    "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj",
+        "projectUniqueName": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj",
         "projectName": "display",
-        "projectPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj",
+        "projectPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj",
         "packagesPath": "C:\\Users\\trema\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\obj\\",
+        "outputPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\trema\\AppData\\Roaming\\NuGet\\NuGet.Config",

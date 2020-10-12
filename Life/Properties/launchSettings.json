@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Life": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "test one two --hello --world this is --dimensions 49 50"
     }
   }
 }

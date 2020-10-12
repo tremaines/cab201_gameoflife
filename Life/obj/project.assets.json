@@ -32,11 +32,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Life\\Life.csproj",
+      "projectUniqueName": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Life\\Life.csproj",
       "projectName": "life",
-      "projectPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Life\\Life.csproj",
+      "projectPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Life\\Life.csproj",
       "packagesPath": "C:\\Users\\trema\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Life\\obj\\",
+      "outputPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Life\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\trema\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -52,8 +52,8 @@
       "frameworks": {
         "netcoreapp3.1": {
           "projectReferences": {
-            "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj": {
-              "projectPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment Part 1\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj"
+            "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj": {
+              "projectPath": "C:\\Users\\trema\\Dropbox\\ADMIN DOCS\\Uni\\2020\\Semester 2\\CAB201\\Assessment\\CAB201_2020S2_ProjectPartA_nXXXXXXXX(5)\\CAB201_2020S2_ProjectPartA_nXXXXXXXX\\Life\\Display\\Display.csproj"
             }
           }
         }
