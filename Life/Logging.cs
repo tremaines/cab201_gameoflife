@@ -8,85 +8,89 @@ namespace Life
     class Logging
     {
 
-        private List<string> errorMsg;
-        private List<string> successMsg;
-        private ConsoleColor defaultColour;
-
-        public List<string> ErrorMsg => errorMsg;
-        public List<string> SuccessMsg => successMsg;
-        public ConsoleColor DefaultColor => defaultColour;
-
-        public Logging()
+        public static void GenericWarning(string msg, string subMsg = null)
         {
-            errorMsg = new List<string>();
-            successMsg = new List<string>();
-            defaultColour = ConsoleColor.White;
+            ConsoleColor defaultColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+
+            Console.WriteLine($"WARNING! {msg}");
+            Console.WriteLine(subMsg);
+            Console.ForegroundColor = defaultColor;
         }
 
-        /// <summary>
-        /// Adds an item (e.g argument, option, setting, etc.) to error or success list
-        /// </summary>
-        /// <param name="msgList">The list to add to
-        /// </param>
-        /// <param name="item">The item to be added
-        /// </param>
-        public void AddItem(List<string> msgList, string item)
+        public static string SubMessageFormatter(string msg)
         {
-            msgList.Add(item);
+            return $"  > {msg}";
         }
-
-
-        public void PrintMessage(string msg, List<string> msgList, ConsoleColor textColour)
+ 
+        public static void PrintMessage(string msg, List<string> msgList, ConsoleColor textColour)
         {
+            ConsoleColor defaultColor = Console.ForegroundColor;
             Console.ForegroundColor = textColour;
             Console.WriteLine(msg);
-            string currentItem;
-            string previousItem = msgList[0];
-            int counter = 0;
 
-            if ((!msgList[counter].StartsWith("--")))
+            foreach (string item in msgList)
             {
-                Console.Write("  > [");
-                Console.Write(msgList[counter]);
-                counter = 1;
+                Console.WriteLine(SubMessageFormatter(item));
             }
 
-            for (int i = counter; i < msgList.Count; i++)
-            {
-                currentItem = msgList[i];
+            Console.ForegroundColor = defaultColor;
+        }
 
-                if (currentItem.StartsWith("--"))
+        public static List<string> FormatArgErrors(List<string> errors)
+        {
+            List<string> formattedList = new List<string>();
+            int counter = 0;
+            string currentItem;
+            string previousItem = errors[0];
+            string listEntry = "";
+
+            for (int i = counter; i < errors.Count; i++)
+            {
+                currentItem = errors[i];
+                bool currentIsOption = ArgumentChecker.IsOption(currentItem);
+                bool previousIsOption = ArgumentChecker.IsOption(previousItem);
+
+                if (currentIsOption)
                 {
                     if (i != 0)
                     {
-                        if (!previousItem.StartsWith("--"))
+                        if (!previousIsOption)
                         {
-                            Console.Write("]");
+                            listEntry += " ]";
+                            formattedList.Add(listEntry);
                         }
-                        Console.WriteLine();
                     }
-                    Console.Write($"  > {currentItem}");
+                    listEntry = currentItem;
                 }
-
-                if (!currentItem.StartsWith("--"))
+                else
                 {
-                    if (previousItem.StartsWith("--"))
+                    if (i == 0)
                     {
-                        Console.Write($": [{currentItem}");
+                        listEntry += $"[ {currentItem}";
+                    }
+                    else if (previousIsOption)
+                    {
+                        listEntry += $": [ {currentItem}";
                     }
                     else
                     {
-                        Console.Write($", {currentItem}");
+                        listEntry += $", {currentItem}";
                     }
                 }
-
                 previousItem = currentItem;
             }
-            if (!previousItem.StartsWith("--"))
+            if (!ArgumentChecker.IsOption(previousItem))
             {
-                Console.WriteLine("]");
+                listEntry += " ]";
+                formattedList.Add(listEntry);
             }
-            Console.ForegroundColor = defaultColour;
+            else
+            {
+                formattedList.Add(listEntry);
+            }
+
+            return formattedList;
         }
     }
 }

@@ -2,7 +2,7 @@
   "profiles": {
     "Life": {
       "commandName": "Project",
-      "commandLineArgs": "test one two --hello --world this is --dimensions 49 50"
+      "commandLineArgs": "test this as well for me please --ok this will work --dimensions 0 1 2 --random a --max-update seven --generations fifty 30 --step hello mate --periodic --gohst enabled"
     }
   }
 }

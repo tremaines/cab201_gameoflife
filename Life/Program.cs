@@ -9,15 +9,15 @@ namespace Life
     {
         static void Main(string[] args)
         {
-            // Add an empty line to avoid clutter
-            Console.WriteLine("");
+            Settings gameSettings;
+
             // Generate the settings and an instance of the game with those settings
-            ArgumentChecker arguments = new ArgumentChecker(args);
-            Settings gameSettings = arguments.GenerateGameSettings(args);
+            gameSettings = ArgumentChecker.GenerateGameSettings(args);
+            
             Game game = new Game(gameSettings);
 
             // Play the game
-            game.PrintMsgsAndSettings();
+            game.PrintSettings();
             game.CycleThroughGame();
             game.RenderFinalGrid();
         }

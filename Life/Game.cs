@@ -26,10 +26,10 @@ namespace Life
             dead,
             alive
         }
-        private Settings settings;
-        private Grid grid;
+        private readonly Settings settings;
+        private readonly Grid grid;
         private DeadOrAlive[,] statusArray;
-        private ConsoleColor defaultColour = Console.ForegroundColor;
+        private readonly ConsoleColor defaultColour = Console.ForegroundColor;
 
         /// <summary>
         /// Constructor for a new game of life. Takes in the game settings and sets up a new "board" using the 
@@ -46,42 +46,15 @@ namespace Life
         /// <summary>
         /// Prints the error and success messages for user and the settings that will be used to run the game
         /// </summary>
-        public void PrintMsgsAndSettings()
+        public void PrintSettings()
         {
-            if (settings.ErrorMsgs.Count != 0)
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("WARNING: ");
-                settings.ErrorMsgs.ForEach(delegate (string error)
-                {
-                    Console.WriteLine($" > {error}");
-                });
-            }
-            if (settings.SuccessMsgs.Count != 0)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\nThe following settings have been successfully updated:");
-                settings.SuccessMsgs.ForEach(delegate (string option)
-                {
-                    Console.WriteLine($"  {option}");
-                });
-            }
-            Console.ForegroundColor = defaultColour;
-
             Console.WriteLine("\nSetting up game with the following values:\n");
-            Console.WriteLine($"\t       Number of Rows: {settings.Rows}\n" +
-                $"\t    Number of Columns: {settings.Columns}\n" +
-                $"\tPeriodic Mode Enabled: {settings.Periodic}\n" +
-                $"\t        Random Factor: {settings.Random:P2}\n" +
-                $"\t            Seed File: {Path.GetFileName(settings.SeedFile)}\n" +
-                $"\t   No. of Generations: {settings.Generations}\n" +
-                $"\t          Update Rate: {settings.UpdateRate} generations / second\n" +
-                $"\t    Step Mode Enabled: {settings.StepMode}");
+            Console.WriteLine(settings);
             if (settings.SeedFile != "None")
             {
-                Console.WriteLine("\nRandom factor will be ignored as a valid seed file has been provided!");
+                Console.WriteLine("Random factor will be ignored as a valid seed file has been provided!");
             }
-            Console.WriteLine("\nPress SPACE to start...");
+            Console.WriteLine("Press SPACE to start...\n");
             CheckForSpace();
         }
 
@@ -123,20 +96,31 @@ namespace Life
         {
             grid.IsComplete = true;
             grid.Render();
-            Console.Write("\n\nPress SPACE to finish...");
-            CheckForSpace();
             grid.RevertWindow();
+            Console.Write("Press SPACE to finish...");
+            CheckForSpace();
         }
 
         /// <summary>
         /// Sets the initial state of the cells in generation 0 based on the seed file (if provided & valid) or the 
         /// random factor
         /// </summary>
-        private void SetInitialState()
+        private void SetInitialState(bool ignoreSeed = false)
         {
-            if (settings.SeedFile != "None")
+            if (settings.SeedFile != "None" && !ignoreSeed)
             {
-                ReadSeedFile();
+                try
+                {
+                    ReadSeedFile();
+                }
+                catch (Exception)
+                {
+                    string subMsg = Logging.SubMessageFormatter("Reverting to random factor to initialise game.");
+                    Logging.GenericWarning("There has been an issue reading the provided seed file.", subMsg);
+                    Console.WriteLine("\nPress SPACE to continue...");
+                    CheckForSpace();
+                    SetInitialState(true);
+                }
             }
             else
             {
