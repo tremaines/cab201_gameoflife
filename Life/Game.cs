@@ -2,13 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.ExceptionServices;
-using System.Text;
 using System.IO;
-using System.Data;
 
 namespace Life
-{ 
+{
+    public enum DeadOrAlive
+    {
+        dead,
+        alive
+    }
+
     /// <summary>
     /// The game class uses a Settings object to play the Game of Life according to the fields
     /// of the Settings instance.
@@ -21,15 +24,9 @@ namespace Life
     /// </date>
     class Game
     {
-        private enum DeadOrAlive
-        {
-            dead,
-            alive
-        }
         private readonly Settings settings;
         private readonly Grid grid;
         private DeadOrAlive[,] statusArray;
-        private readonly ConsoleColor defaultColour = Console.ForegroundColor;
 
         /// <summary>
         /// Constructor for a new game of life. Takes in the game settings and sets up a new "board" using the 
@@ -54,7 +51,6 @@ namespace Life
             {
                 Console.WriteLine("Random factor will be ignored as a valid seed file has been provided!");
             }
-            Console.WriteLine("Press SPACE to start...\n");
             CheckForSpace();
         }
 
@@ -77,7 +73,7 @@ namespace Life
                 // User cycles through 1 generation at a time by pressing space if step mode enabled
                 if (settings.StepMode)
                 {
-                    CheckForSpace();
+                    CheckForSpace(writeMsg: false);
                 }
                 // Otherwise game cycles through at the update rate specified in Settings
                 else
@@ -96,9 +92,9 @@ namespace Life
         {
             grid.IsComplete = true;
             grid.Render();
+            CheckForSpace(writeMsg: false);
             grid.RevertWindow();
-            Console.Write("Press SPACE to finish...");
-            CheckForSpace();
+            CheckForSpace(action: "finish");
         }
 
         /// <summary>
@@ -109,97 +105,67 @@ namespace Life
         {
             if (settings.SeedFile != "None" && !ignoreSeed)
             {
-                try
-                {
-                    ReadSeedFile();
-                }
-                catch (Exception)
-                {
-                    string subMsg = Logging.SubMessageFormatter("Reverting to random factor to initialise game.");
-                    Logging.GenericWarning("There has been an issue reading the provided seed file.", subMsg);
-                    Console.WriteLine("\nPress SPACE to continue...");
-                    CheckForSpace();
-                    SetInitialState(true);
-                }
+                InitialiseFromSeed();
             }
             else
             {
-                double chance = settings.Random;
-                Random random = new Random();
-                for (int r = 0; r < settings.Rows; r++)
-                {
-                    for (int c = 0; c < settings.Columns; c++)
-                    {
-                        if (chance > random.NextDouble())
-                        {
-                            grid.UpdateCell(r, c, CellState.Full);
-                            statusArray[r, c] = DeadOrAlive.alive;
-                        }
-                    }
-                }
+                InitialiseFromRandom();
             }
         }
 
-        /// <summary>
-        /// Reads a seed file and sets cells to alive given the information in the seed file IF that cell is within the
-        /// bounds of the board.
-        /// </summary>
-        private void ReadSeedFile()
+        private void InitialiseFromSeed()
         {
-            string fileName = settings.SeedFile;
-            using (StreamReader reader = new StreamReader(fileName))
+            string errorMsg = Logging.SubMessageFormatter("Reverting to random factor to initialise game.");
+            try
             {
-                // First line of a seed file is not relevant, so read it to get it out of the way
-                reader.ReadLine();
-                char delimiter = ' ';
-                string line;
-                // Keep track of the highest row and column value in the seed file
-                int rowMax = 0;
-                int colMax = 0;
-                bool outOfBoundsValue = false;
-
-                while ((line = reader.ReadLine()) != null)
-                {
-                    string[] coordinates = line.Split(delimiter);
-                    int row = Int32.Parse(coordinates[0]);
-                    int col = Int32.Parse(coordinates[1]);
-                    CheckSeedValues(row, ref rowMax);
-                    CheckSeedValues(col, ref colMax);
-
-                    // If either the row or column value are out of bounds, continue through next iteration of loop 
-                    // instead of changing cell to alive
-                    if (row + 1 > settings.Rows || col + 1 > settings.Columns)
-                    {
-                        outOfBoundsValue = true;
-                        continue;
-                    }
-                    statusArray[row, col] = DeadOrAlive.alive;
-                }
                 
-                // If there were any out of bounds values, print recommended dimensions based on rowMax & colMax
-                if (outOfBoundsValue)
+                using StreamReader reader = new StreamReader(settings.SeedFile);
+                string version = reader.ReadLine();
+                ReadSeed seed = version switch
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("\nWARNING! Game will continue but some cells in seed file are out of bounds:");
-                    Console.WriteLine($"  - Recommended minimum dimensions based on seed file: {rowMax + 1} rows " +
-                                      $"X {colMax + 1} columns.");
-                    Console.ForegroundColor = defaultColour;
-                    Console.WriteLine("\nPress SPACE to continue...");
-                    CheckForSpace();
-                }
+                    "#version=1.0" => new SeedVersionOne(settings.SeedFile, settings.Rows, settings.Columns),
+                    "#version=2.0" => new SeedVersionTwo(settings.SeedFile, settings.Rows, settings.Columns),
+                    _ => throw new SeedVersionException(version),
+                };
+                seed.ReadFile();
+                seed.AlertToOutOfBounds();
+                statusArray = seed.CellsArray;
+            }
+            catch (SeedVersionException e)
+            {
+                string SubMsg = Logging.SubMessageFormatter("Version must be 1.0 or 2.0\n") + errorMsg;
+                Logging.GenericWarning(e.Message, SubMsg);
+                CheckForSpace();
+                SetInitialState(true);
+            }
+            catch (SeedLineException e)
+            {
+                Logging.GenericWarning(e.Message, errorMsg);
+                CheckForSpace();
+                SetInitialState(true);
+            }
+            catch (Exception)
+            {
+                Logging.GenericWarning("There has been an issue reading the provided seed file.", errorMsg);
+                CheckForSpace();
+                SetInitialState(true);
             }
         }
 
-        /// <summary>
-        /// Updates the value of the variable storing the maximum dimension in a seed file
-        /// </summary>
-        /// <param name="seedValue">Seed value to check</param>
-        /// <param name="maxValue">Current max value</param>
-        private void CheckSeedValues(int seedValue, ref int maxValue)
+        private void InitialiseFromRandom()
         {
-            if (seedValue > maxValue)
+            double chance = settings.Random;
+            Random random = new Random();
+            for (int r = 0; r < settings.Rows; r++)
             {
-                maxValue = seedValue;
+                for (int c = 0; c < settings.Columns; c++)
+                {
+                    if (chance > random.NextDouble())
+                    {
+                        grid.UpdateCell(r, c, CellState.Full);
+                        statusArray[r, c] = DeadOrAlive.alive;
+                    }
+                }
             }
         }
 
@@ -304,8 +270,12 @@ namespace Life
         /// appears, that way the program won't shoot past the prompt if the user has accidentally pushed space
         /// prior to the prompt appearing. Then loops until the user does press space.
         /// </summary>
-        private void CheckForSpace()
+        public static void CheckForSpace(string action = "continue", bool writeMsg = true)
         {
+            if (writeMsg)
+            {
+                Console.WriteLine($"\nPress SPACE to {action}...");
+            }
             while (Console.KeyAvailable)
             {
                 Console.ReadKey(true);
