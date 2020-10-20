@@ -37,6 +37,14 @@ namespace Life
             Console.ForegroundColor = defaultColor;
         }
 
+        public static void PrintMessage(string msg, ConsoleColor textColour)
+        {
+            ConsoleColor defaultColor = Console.ForegroundColor;
+            Console.ForegroundColor = textColour;
+            Console.WriteLine(msg);
+            Console.ForegroundColor = defaultColor;
+        }
+
         public static List<string> FormatArgErrors(List<string> errors)
         {
             List<string> formattedList = new List<string>();

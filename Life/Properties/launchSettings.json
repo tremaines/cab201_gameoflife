@@ -2,7 +2,7 @@
   "profiles": {
     "Life": {
       "commandName": "Project",
-      "commandLineArgs": "--seed test.seed --dimensions 15 15 --step"
+      "commandLineArgs": "--seed glider.seed --output output.seed --dimensions 8 8 --generations 20 --ghost --step"
     }
   }
 }

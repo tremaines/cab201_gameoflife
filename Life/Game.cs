@@ -3,12 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Life
 {
     public enum DeadOrAlive
     {
         dead,
+        light,
+        medium,
+        dark,
         alive
     }
 
@@ -27,6 +31,11 @@ namespace Life
         private readonly Settings settings;
         private readonly Grid grid;
         private DeadOrAlive[,] statusArray;
+        private DeadOrAlive[][,] memory;
+        private bool steadyState = false;
+        private int periodicity = 0;
+        private int memoryCounter = 0;
+        private WriteSeed writeSeed;
 
         /// <summary>
         /// Constructor for a new game of life. Takes in the game settings and sets up a new "board" using the 
@@ -38,6 +47,7 @@ namespace Life
             this.settings = settings;
             grid = new Grid(settings.Rows, settings.Columns);
             statusArray = new DeadOrAlive[settings.Rows, settings.Columns];
+            memory = new DeadOrAlive[settings.Memory][,];
         }
 
         /// <summary>
@@ -47,9 +57,14 @@ namespace Life
         {
             Console.WriteLine("\nSetting up game with the following values:\n");
             Console.WriteLine(settings);
-            if (settings.SeedFile != "None")
+            if (settings.SeedFile != null)
             {
                 Console.WriteLine("Random factor will be ignored as a valid seed file has been provided!");
+            }
+            if (settings.OutputFile != null && File.Exists(settings.OutputFile))
+            {
+                Logging.PrintMessage($"Please be aware {Path.GetFullPath(settings.OutputFile)} " +
+                    $"already exists. If you continue, it will be overwritten!", ConsoleColor.Yellow);
             }
             CheckForSpace();
         }
@@ -66,7 +81,22 @@ namespace Life
             for (int i = 0; i <= settings.Generations; i++)
             {
                 grid.SetFootnote($"Generation: {i}");
+                if (i != 0)
+                {
+                    statusArray = CreateNextGeneration();
+                }
                 UpdateCellStatus();
+                int matchIndex = CompareToMemory();
+                if (i != 0)
+                {
+                    if (matchIndex != -1)
+                    {
+                        periodicity = memoryCounter - matchIndex;
+                        steadyState = true;
+                        break;
+                    }
+                }
+                AddToMemory(statusArray);
                 grid.Render();
                 watch.Restart();
 
@@ -80,7 +110,13 @@ namespace Life
                 {
                     while (watch.ElapsedMilliseconds < ((1 / settings.UpdateRate) * 1000)) ;
                 }
-                statusArray = CreateNextGeneration();
+            }
+
+            // Write final array to file
+            if (settings.OutputFile != null)
+            {
+                writeSeed = new WriteSeed(settings.OutputFile, statusArray);
+                writeSeed.WriteToFile();
             }
         }
 
@@ -94,6 +130,19 @@ namespace Life
             grid.Render();
             CheckForSpace(writeMsg: false);
             grid.RevertWindow();
+            if (steadyState)
+            {
+                Console.Write("Steady state detected! ");
+                Console.WriteLine("Periodicity: {0}", periodicity == 1 ? "N/A" : periodicity.ToString());
+            }
+            else
+            {
+                Console.WriteLine("Steady state not detected.");
+            }
+            if (settings.OutputFile != null)
+            {
+                Console.WriteLine($"Final generation written to {Path.GetFullPath(settings.OutputFile)}");
+            }
             CheckForSpace(action: "finish");
         }
 
@@ -103,7 +152,7 @@ namespace Life
         /// </summary>
         private void SetInitialState(bool ignoreSeed = false)
         {
-            if (settings.SeedFile != "None" && !ignoreSeed)
+            if (settings.SeedFile != null && !ignoreSeed)
             {
                 InitialiseFromSeed();
             }
@@ -169,39 +218,73 @@ namespace Life
             }
         }
 
-        /// <summary>
-        /// Checks the 8 neighbours of a cell and counts the number of living neighbours it has
-        /// </summary>
-        /// <param name="row">Row of cell (alias for dimension 0 of statusArray)</param>
-        /// <param name="column">Column of cell (alias for dimensions 1 of statusArray)</param>
-        /// <returns>The total number of living neighbours of the cell</returns>
-        private int CheckNeighbours(int row, int column)
+        private void AddToMemory(DeadOrAlive[,] generation)
         {
-            int livingNeighbours = 0;
-            for (int r = -1; r <= 1; r++)
+            if (memoryCounter + 1 == memory.Length)
             {
-                for (int c = -1; c <=1; c++)
+                memoryCounter = 0;
+            }
+
+            memory[memoryCounter] = generation;
+            memoryCounter++;
+        }
+
+        private int CompareToMemory()
+        {
+            bool match = false;
+            int matchIndex = -1;
+            using StreamWriter writer = new StreamWriter("debug.txt", true);
+            writer.WriteLine($"+++++++Generation {memoryCounter}+++++++");
+
+            for (int i = 0; i < memoryCounter; i++)
+            {
+                writer.WriteLine($"-------Memory index:{i}-------");
+                for (int r = 0; r < settings.Rows; r++)
                 {
-                    int neighbourR = row + r;
-                    int neighbourC = column + c;
-                    if (!(r == 0 && c == 0))     // Don't want to count a cell as its own neighbour
+                    for (int c = 0; c < settings.Columns; c++)
                     {
-                        // If periodic is enabled, use that logic in checking the neighbours
-                        if (settings.Periodic)
+                        if ((int)memory[i][r, c] / (int)DeadOrAlive.alive != 
+                            (int)statusArray[r, c] / (int)DeadOrAlive.alive)
                         {
-                            livingNeighbours += (int)statusArray[((neighbourR + settings.Rows) % settings.Rows),
-                                ((neighbourC + settings.Columns) % settings.Columns)];
+                            match = false;
+                            writer.WriteLine($"No match: {r}, {c}");
+                            break;
                         }
-                        // Otherwise check if neighbour cell is within the bounds of the board
-                        else if ((neighbourR >= 0 && neighbourC >= 0) && 
-                            (neighbourR < settings.Rows && neighbourC < settings.Columns))
-                        {
-                            livingNeighbours += (int)statusArray[neighbourR, neighbourC];
-                        }
+                        writer.WriteLine($"Match: {r}, {c}");
+                        match = true;
+                    }
+                    if (!match)
+                    {
+                        break;
                     }
                 }
+                if (match)
+                {
+                    matchIndex = i;
+                    writer.WriteLine("MATCH FOUND!!!");
+                    break;
+                }
             }
-            return livingNeighbours;
+
+            return matchIndex;
+        }
+
+        private DeadOrAlive ChooseShading(DeadOrAlive status)
+        {
+            switch (status)
+            {
+                case DeadOrAlive.alive:
+                    return DeadOrAlive.dark;
+                case DeadOrAlive.dark:
+                    return DeadOrAlive.medium;
+                case DeadOrAlive.medium:
+                    return DeadOrAlive.light;
+                case DeadOrAlive.light:
+                    return DeadOrAlive.dead;
+                default:
+                    break;
+            }
+            return DeadOrAlive.dead;
         }
 
         /// <summary>
@@ -211,35 +294,38 @@ namespace Life
         private DeadOrAlive[,] CreateNextGeneration()
         {
             DeadOrAlive[,] nextGenStatusArray = new DeadOrAlive[settings.Rows, settings.Columns];
+            Neighbourhood neighbourhood = new Neighbourhood(settings.Neighbourhood, 
+                settings.Order, settings.Centre, settings.Periodic, statusArray);
             for (int r = 0; r < settings.Rows; r++)
             {
                 for (int c = 0; c < settings.Columns; c++)
                 {
-                    int livingNeighbours = CheckNeighbours(r, c);
-                    if (statusArray[r, c] == DeadOrAlive.dead)
+                    int livingNeighbours = neighbourhood.CheckNeighbours(r, c);
+                    if (statusArray[r, c] != DeadOrAlive.alive)
                     {
                         // If a cell is a dead and has exactly 3 living neighbours, it will be alive
-                        if (livingNeighbours == 3)
+                        if (settings.Birth.Contains(livingNeighbours))
                         {
                             nextGenStatusArray[r, c] = DeadOrAlive.alive;
                         }
                         // Otherwise it stays dead
                         else
                         {
-                            nextGenStatusArray[r, c] = DeadOrAlive.dead;
+                            nextGenStatusArray[r, c] = settings.Ghost ? ChooseShading(statusArray[r, c]) : 
+                                DeadOrAlive.dead;
                         }
                     }
                     else if (statusArray[r, c] == DeadOrAlive.alive)
                     {
                         // If a cell is a live and has 2 or 3 living neighbours, it will stay alive
-                        if (livingNeighbours == 2 || livingNeighbours == 3)
+                        if (settings.Survival.Contains(livingNeighbours))
                         {
                             nextGenStatusArray[r, c] = DeadOrAlive.alive;
                         }
                         // Otherwise it will die
                         else
                         {
-                            nextGenStatusArray[r, c] = DeadOrAlive.dead;
+                            nextGenStatusArray[r, c] = settings.Ghost ? DeadOrAlive.dark : DeadOrAlive.dead;
                         }
                     }
                 }
@@ -260,7 +346,26 @@ namespace Life
                     {
                         grid.UpdateCell(r, c, CellState.Full);
                     }
-                    else grid.UpdateCell(r, c, CellState.Blank);
+                    else
+                    {
+                        CellState state = CellState.Blank;
+                        if (settings.Ghost)
+                        {
+                            switch (statusArray[r, c])
+                            {
+                                case DeadOrAlive.dark:
+                                    state = CellState.Dark;
+                                    break;
+                                case DeadOrAlive.medium:
+                                    state = CellState.Medium;
+                                    break;
+                                case DeadOrAlive.light:
+                                    state = CellState.Light;
+                                    break;
+                            }
+                        }
+                        grid.UpdateCell(r, c, state);
+                    }
                 }
             }
         }
