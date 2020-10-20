@@ -32,9 +32,11 @@ namespace Life
         private readonly Grid grid;
         private DeadOrAlive[,] statusArray;
         private DeadOrAlive[][,] memory;
+        private int[] generationInMemory;
         private bool steadyState = false;
         private int periodicity = 0;
         private int memoryCounter = 0;
+        private int memoryIndex = 0;
         private WriteSeed writeSeed;
 
         /// <summary>
@@ -48,6 +50,7 @@ namespace Life
             grid = new Grid(settings.Rows, settings.Columns);
             statusArray = new DeadOrAlive[settings.Rows, settings.Columns];
             memory = new DeadOrAlive[settings.Memory][,];
+            generationInMemory = new int[settings.Memory];
         }
 
         /// <summary>
@@ -91,12 +94,12 @@ namespace Life
                 {
                     if (matchIndex != -1)
                     {
-                        periodicity = memoryCounter - matchIndex;
+                        periodicity = i - generationInMemory[matchIndex];
                         steadyState = true;
                         break;
                     }
                 }
-                AddToMemory(statusArray);
+                AddToMemory(statusArray, i);
                 grid.Render();
                 watch.Restart();
 
@@ -218,15 +221,20 @@ namespace Life
             }
         }
 
-        private void AddToMemory(DeadOrAlive[,] generation)
+        private void AddToMemory(DeadOrAlive[,] generationArray, int generation)
         {
-            if (memoryCounter + 1 == memory.Length)
+            if (memoryIndex == memory.Length)
             {
-                memoryCounter = 0;
+                memoryIndex = 0;
             }
 
-            memory[memoryCounter] = generation;
-            memoryCounter++;
+            memory[memoryIndex] = generationArray;
+            generationInMemory[memoryIndex] = generation;
+            memoryIndex++;
+            if (memoryCounter != settings.Memory)
+            {
+                memoryCounter++;
+            }
         }
 
         private int CompareToMemory()
@@ -377,20 +385,31 @@ namespace Life
         /// </summary>
         public static void CheckForSpace(string action = "continue", bool writeMsg = true)
         {
+            int delay = 275;
+            Stopwatch watch = new Stopwatch();
             if (writeMsg)
             {
                 Console.WriteLine($"\nPress SPACE to {action}...");
             }
-            while (Console.KeyAvailable)
-            {
-                Console.ReadKey(true);
-            }
 
-            ConsoleKeyInfo keyPress = Console.ReadKey(true);
-            while(keyPress.KeyChar != ' ')
+            while (true)
             {
-                keyPress = Console.ReadKey(true);
+                watch.Restart();
+                while (watch.ElapsedMilliseconds < delay) ;
+                if (Console.KeyAvailable)
+                {
+                    while (!Console.KeyAvailable) ;
+                    while (Console.KeyAvailable)
+                    {
+                        Console.ReadKey(true);
+                    }
+                }
+                else
+                {
+                    break;
+                }
             }
+            while (Console.ReadKey(true).Key != ConsoleKey.Spacebar) ;
         }
     }
 }

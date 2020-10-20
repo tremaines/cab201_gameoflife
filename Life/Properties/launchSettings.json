@@ -2,7 +2,7 @@
   "profiles": {
     "Life": {
       "commandName": "Project",
-      "commandLineArgs": "--seed glider.seed --output output.seed --dimensions 8 8 --generations 20 --ghost --step"
+      "commandLineArgs": "--survival 12...20 --birth 7 8 --neighbour vonNeumann 4 true --seed Seeds\\kaleidoscope2_47x47.seed --dimensions 47 47 --generations 2250 --memory 200 --max-update 30 --ghost"
     }
   }
 }

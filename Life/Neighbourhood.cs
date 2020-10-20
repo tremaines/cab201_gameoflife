@@ -72,7 +72,7 @@ namespace Life
             {
                 // Checkrow is the current "level" we are checking
                 // Needs to be adjusted once we move past the middle level/row of the neighbourhood
-                int checkRow = i >= (height - order) ? (i - (height - order)) : i;
+                int checkRow = i >= (height - order) ? (2 * order - i) : i;
 
                 for (int c = col - checkRow; c <= (col + checkRow); c++)
                 {
