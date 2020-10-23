@@ -5,6 +5,15 @@ using System.Text;
 
 namespace Life
 {
+    /// <summary>
+    /// Initialises an object with a filename and a DeadOrAlive to enable writing to that file
+    /// </summary>
+    /// <author>
+    /// Tremaine Stroebel
+    /// </author>
+    /// <date>
+    /// October 2020
+    /// </date>
     class WriteSeed
     {
         private string file;
@@ -21,6 +30,7 @@ namespace Life
             using StreamWriter writer = new StreamWriter(file);
             writer.WriteLine("#version=2.0");
 
+            // Loop over cells and write living cells to file
             for (int r = 0; r < cells.GetLength(0); r++)
             {
                 for (int c = 0; c < cells.GetLength(1); c++)

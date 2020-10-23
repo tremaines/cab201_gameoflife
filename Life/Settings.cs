@@ -11,10 +11,19 @@ namespace Life
     /// Defaults are initialised at the beginning of the class and the various methods
     /// change those defaults to user define values (assuming the user's input it valid!)
     /// </summary>
-    /// <author>Tremaine Stroebel</author>
-    /// <date>August 2020</date>
+    /// <author>
+    /// Tremaine Stroebel
+    /// </author>
+    /// <date>
+    /// August 2020
+    /// </date>
+    /// <re-writtenDate>
+    /// October 2020
+    /// </re-writtenDate>
     class Settings
     {
+        // Constants
+        // Some are public for validation check in the Options class
         private const int DIMENSIONS_MIN = 4;
         private const int DIMENSIONS_MAX = 48;
         public const int DIMENSIONS_DEFAULT = 16;
@@ -50,6 +59,10 @@ namespace Life
         private int order = ORDER_MIN;
         private int memory = MEM_DEFAULT;
 
+        /// <summary>
+        /// Get/set for rows
+        /// </summary>
+        /// <exception cref="ParamValueException">Outside of the range of allowable values</exception>
         public int Rows
         {
             get => rows;
@@ -63,6 +76,10 @@ namespace Life
             }
         }
 
+        /// <summary>
+        /// Get/set for columns
+        /// </summary>
+        /// <exception cref="ParamValueException">Outside of the range of allowable values</exception>
         public int Columns 
         {
             get => columns;
@@ -76,6 +93,10 @@ namespace Life
             }
         }
 
+        /// <summary>
+        /// Get/set for random factor
+        /// </summary>
+        /// <exception cref="ParamValueException">Outside of the range of allowable values</exception>
         public double Random 
         {
             get => random;
@@ -88,10 +109,29 @@ namespace Life
                 random = value;
             }
         }
-        public string SeedFile { get; set; } = null;
-        public string OutputFile { get; set; } = null;
 
-        public int Generations 
+        /// <summary>
+        /// Get/set for max update rate
+        /// </summary>
+        /// <exception cref="ParamValueException">Outside of the range of allowable values</exception>
+        public double UpdateRate
+        {
+            get => updateRate;
+            set
+            {
+                if (value < UPDATE_MIN || value > UPDATE_MAX)
+                {
+                    throw new ParamValueException("Update rate", value, UPDATE_MIN, UPDATE_MAX);
+                }
+                updateRate = value;
+            }
+        }
+
+        /// <summary>
+        /// Get/set for number of generations
+        /// </summary>
+        /// <exception cref="ParamValueException">Outside of the range of allowable values</exception>
+        public int Generations
         {
             get => generations;
             set
@@ -104,23 +144,10 @@ namespace Life
             }
         }
 
-        public double UpdateRate 
-        {
-            get => updateRate;
-            set
-            {
-                if (value < UPDATE_MIN || value > UPDATE_MAX)
-                {
-                    throw new ParamValueException("Update rate", value, UPDATE_MIN, UPDATE_MAX);
-                }
-                updateRate = value;
-            }
-        }
-        public bool Periodic { get; set; } = false;
-
-        public bool StepMode { get; set; } = false;
-        public bool Ghost { get; set; } = false;
-
+        /// <summary>
+        /// Get/set for neighbourhood type
+        /// </summary>
+        /// <exception cref="ParamValueException">Not a valid neighbourhood type</exception>
         public string Neighbourhood
         {
             get => neighbourhood;
@@ -134,6 +161,10 @@ namespace Life
             }
         }
 
+        /// <summary>
+        /// Get/set for neighbourhood order
+        /// </summary>
+        /// <exception cref="">Outside of the range of allowable values</exception>
         public int Order
         {
             get => order;
@@ -149,8 +180,13 @@ namespace Life
 
         public bool Centre { get; set; } = false;
 
+        /// <summary>
+        /// Get/set for birth rules
+        /// </summary>
+        /// <exception cref="ParamValueException">Must be positive</exception>
         public List<int> Birth
-        { get => birth;
+        {
+            get => birth;
             set
             {
                 foreach (int number in value)
@@ -161,12 +197,16 @@ namespace Life
                     }
                 }
                 birth = value;
-            } 
+            }
         }
 
         public List<string> BirthText { get; set; } = BIRTH_TEXT;
 
-        public List<int> Survival 
+        /// <summary>
+        /// Get/set for survival rules
+        /// </summary>
+        /// <exception cref="ParamValueException">Must be positive</exception>
+        public List<int> Survival
         {
             get => survival;
             set
@@ -179,11 +219,15 @@ namespace Life
                     }
                 }
                 survival = value;
-            } 
+            }
         }
 
         public List<string> SurvivalText { get; set; } = SURVIVAL_TEXT;
 
+        /// <summary>
+        /// Get/set for memory
+        /// </summary>
+        /// <exception cref="ParamValueException">Outside of range of allowable values</exception>
         public int Memory
         {
             get => memory;
@@ -198,12 +242,22 @@ namespace Life
             }
         }
 
+        public string SeedFile { get; set; } = null;
+        public string OutputFile { get; set; } = null;
+        public bool Periodic { get; set; } = false;
+        public bool StepMode { get; set; } = false;
+        public bool Ghost { get; set; } = false;
 
         /// <summary>
         /// Default constructor, called when user doesn't change settings or doesn't enter any valid --options.
         /// </summary>
         public Settings() { }
 
+        /// <summary>
+        /// Format a string for the birth and survival rules
+        /// </summary>
+        /// <param name="rules">A list of the rules</param>
+        /// <returns>A formated string</returns>
         private string GenerateRulesString(List<string> rules)
         {
             string output = "{";
@@ -216,6 +270,10 @@ namespace Life
             return output;
         }
 
+        /// <summary>
+        /// Override of the ToString() method for a nicely formatted settings output
+        /// </summary>
+        /// <returns>The settings</returns>
         public override string ToString()
         {
             string settingsOutput = "";
@@ -228,16 +286,16 @@ namespace Life
                 " [Centre count: " + (Centre ? "Enabled]" : "Disabled]") + "\n";
             settingsOutput += "Rules:".PadLeft(padding) + $" Survival {GenerateRulesString(SurvivalText)} " +
                 $"Birth {GenerateRulesString(BirthText)}\n";
-            settingsOutput += "Periodic Mode:".PadLeft(padding) + (Periodic ? " Enabled" : " Disabled") + "\n";
             settingsOutput += "Random Factor:".PadLeft(padding) + $" {Random:P2}\n";
             settingsOutput += "Seed File:".PadLeft(padding) + 
                 $" {(SeedFile is null ? "None" : Path.GetFileName(SeedFile))}\n";
             settingsOutput += $"Output File:".PadLeft(padding) +
-                $" {(OutputFile is null? "None" : Path.GetFullPath(OutputFile))}\n";
+                $" {(OutputFile is null? "None" : Path.GetFileName(OutputFile))}\n";
             settingsOutput += "No. of Generations:".PadLeft(padding) + $" {Generations}\n";
             settingsOutput += "Update Rate:".PadLeft(padding) + $" {UpdateRate} generations / second\n";
-            settingsOutput += "Step Mode:".PadLeft(padding) + (StepMode ? " Enabled" : " Disabled") + "\n";
             settingsOutput += "Memory:".PadLeft(padding) + $" {Memory} generations\n";
+            settingsOutput += "Periodic Mode:".PadLeft(padding) + (Periodic ? " Enabled" : " Disabled") + "\n";
+            settingsOutput += "Step Mode:".PadLeft(padding) + (StepMode ? " Enabled" : " Disabled") + "\n";
             settingsOutput += "Ghost Mode:".PadLeft(padding) + (Ghost ? " Enabled" : " Disabled") + "\n";
 
             return settingsOutput;

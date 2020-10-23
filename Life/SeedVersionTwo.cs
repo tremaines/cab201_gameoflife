@@ -9,6 +9,15 @@ using System.Text;
 
 namespace Life
 {
+    /// <summary>
+    /// A class for reading version 2 seed files based on the ReadSeed class
+    /// </summary>
+    /// <author>
+    /// Tremaine Stroebel
+    /// </author>
+    /// <date>
+    /// October 2020
+    /// </date>
     class SeedVersionTwo : ReadSeed
     {
         private readonly string[] statusTypes = { "o", "x" };
@@ -16,6 +25,9 @@ namespace Life
 
         public SeedVersionTwo(string file, int rows, int cols) : base(file, rows, cols) { }
 
+        /// <summary>
+        /// Parses the file and adds cells to the cellsArray variable
+        /// </summary>
         public override void ReadFile()
         {
             using StreamReader reader = new StreamReader(file);
@@ -46,6 +58,11 @@ namespace Life
             }
         }
 
+        /// <summary>
+        /// Removes white spaces from the provided string
+        /// </summary>
+        /// <param name="line">The string to be sanitised</param>
+        /// <returns>A new string with no whitespace characters</returns>
         private string SanitiseString(string line)
         {
             string newString = "";
@@ -60,6 +77,11 @@ namespace Life
             return newString;
         }
 
+        /// <summary>
+        /// Splits the provided string up into the main components of a version 2 seed line (status, structure, coords)
+        /// </summary>
+        /// <param name="sanitisedLine">A string with no whitespace characters</param>
+        /// <returns>A string array of the three structures</returns>
         private string[] GetStructureComponents(string sanitisedLine)
         {
             char[] delimiters = { '(', ')', ':' };
@@ -67,19 +89,30 @@ namespace Life
             return structComponents;
         }
 
+        /// <summary>
+        /// Validates the components of a version 2 seed line
+        /// </summary>
+        /// <param name="components">An array of the components</param>
+        /// <param name="lineNum">The line number</param>
+        /// <param name="status">Output the status (dead or alive)</param>
+        /// <param name="structure">Output the structure (cell, rectangle or ellipse)</param>
+        /// <param name="coords">Output the coordinates</param>
+        /// <exception cref="SeedLineException">Errors in the composition of the seed file</exception>
         private void CheckComponents(string[] components, int lineNum, 
             out DeadOrAlive status, out string structure, out int[] coords)
         {
             int numExpectedComponents = 3;
+            
+            // Check there is the correct number of components first
             if (components.Length != numExpectedComponents)
             {
                 throw new SeedLineException("Incorrect formatting.", lineNum);
             }
-            string structureStatus = components[0];
-            string structureType = components[1];
+            string structureStatus = components[0].ToLower();
+            string structureType = components[1].ToLower();
             string structureCoords = components[2];
 
-            // Get status
+            // Get status & structure
             if (!(statusTypes.Contains(structureStatus) && structureTypes.Contains(structureType)))
             {
                 throw new SeedLineException("Unknown status or structure.", lineNum);
@@ -93,6 +126,13 @@ namespace Life
             }
         }
 
+        /// <summary>
+        /// Convert the coordinates from string to int
+        /// </summary>
+        /// <param name="stringCoords">Coordinates in string form</param>
+        /// <param name="lineNum">The line number of the seed</param>
+        /// <returns>An array of coordinates</returns>
+        /// <exception cref="SeedLineException">Coordinates cannot be converted to int</exception>
         private int[] GetCoordinates(string stringCoords, int lineNum)
         {
             string[] splitCoords = stringCoords.Split(',');
@@ -108,6 +148,13 @@ namespace Life
             return intCoords;
         }
 
+        /// <summary>
+        /// "Draw" a cell structure type
+        /// </summary>
+        /// <param name="status">Structure status</param>
+        /// <param name="coords">Structure coordinates</param>
+        /// <param name="lineNum">Seed line number</param>
+        /// <exception cref="SeedLineException">Incorrect number of coordinates</exception>
         private void DrawCell (DeadOrAlive status, int[] coords, int lineNum)
         {
             int expectedCoords = 2;
@@ -126,6 +173,13 @@ namespace Life
             }
         }
 
+        /// <summary>
+        /// "Draw" a rectangle structure type
+        /// </summary>
+        /// <param name="status">Structure status</param>
+        /// <param name="coords">Structure coordinates</param>
+        /// <param name="lineNum">Seed line number</param>
+        /// <exception cref="SeedLineException">Incorrect number of coordinates</exception>
         private void DrawRectangle(DeadOrAlive status, int[] coords, int lineNum)
         {
             int expectedCoords = 4;
@@ -152,8 +206,13 @@ namespace Life
             }
         }
 
-
-
+        /// <summary>
+        /// "Draw" an ellipse structure type
+        /// </summary>
+        /// <param name="status">Structure status</param>
+        /// <param name="coords">Structure coordinates</param>
+        /// <param name="lineNum">Seed line number</param>
+        /// <exception cref="SeedLineException">Incorrect number of coordinates</exception>
         private void DrawEllipse(DeadOrAlive status, int[] coords, int lineNum)
         {
             int expectedCoords = 4;
@@ -173,12 +232,12 @@ namespace Life
             double colCen = ((topCol - bottomCol) / 2.0) + bottomCol;
             double rowCen = ((topRow - bottomRow) / 2.0) + bottomRow;
 
-
-
             for (int r = bottomRow; r <= topRow; r++)
             {
                 for (int c = bottomCol; c <= topCol; c++)
                 {
+                    // Only record that cell as part of the ellipse if its centre falls within the range of the
+                    // ellipse
                     if (CheckCellCentre((double)r, (double)c, rowCen, colCen, rowLen, colLen) 
                         && !CheckOutOfBounds(r, c))
                     {
@@ -188,6 +247,16 @@ namespace Life
             }
         }
 
+        /// <summary>
+        /// Checks if a cell's centre is within range of the ellipse
+        /// </summary>
+        /// <param name="row">Cell row</param>
+        /// <param name="col">Cell column</param>
+        /// <param name="rowCen">Centre row value of ellipse</param>
+        /// <param name="colCen">Centre column value of ellipse</param>
+        /// <param name="rowLen">Row length of ellipse</param>
+        /// <param name="colLen">Column length of ellipse</param>
+        /// <returns>True if centre is within ellipse range, false otherwise</returns>
         private bool CheckCellCentre(double row, double col, double rowCen, double colCen, double rowLen, double colLen)
         {
             double checkRowVal = 4.0 * Math.Pow(row - rowCen, 2.0) / Math.Pow(rowLen, 2.0);
