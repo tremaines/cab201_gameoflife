@@ -13,7 +13,6 @@ namespace Life
 
             // Generate the settings and an instance of the game with those settings
             gameSettings = ArgumentChecker.GenerateGameSettings(args);
-            
             Game game = new Game(gameSettings);
 
             // Play the game

@@ -28,18 +28,24 @@ namespace Life
             reader.ReadLine();
             char delimiter = ' ';
             string line;
-            int row, col;
+            int lineCount = 2;
 
             while ((line = reader.ReadLine()) != null)
             {
                 string[] coordinates = line.Split(delimiter);
-                row = int.Parse(coordinates[0]);
-                col = int.Parse(coordinates[1]);
 
-                if (!CheckOutOfBounds(row, col))
+                if (int.TryParse(coordinates[0], out int row) && int.TryParse(coordinates[1], out int col))
                 {
-                    cellsArray[row, col] = DeadOrAlive.alive;
+                    if (!CheckOutOfBounds(row, col))
+                    {
+                        cellsArray[row, col] = DeadOrAlive.alive;
+                    }
                 }
+                else
+                {
+                    throw new SeedLineException("Coordinates must be whole numbers", lineCount);
+                }
+                lineCount++;
             }
         }
     }

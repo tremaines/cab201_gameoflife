@@ -19,12 +19,20 @@ namespace Life
         private string file;
         private DeadOrAlive[,] cells;
 
+        /// <summary>
+        /// Constructor for a WriteSeed object
+        /// </summary>
+        /// <param name="file">File name or path</param>
+        /// <param name="cells">An array of DeadOrAlive values</param>
         public WriteSeed(string file, DeadOrAlive[,] cells)
         {
             this.file = file;
             this.cells = cells;
         }
 
+        /// <summary>
+        /// Writes a DeadOrAlive array to file using the version 2 seed format.
+        /// </summary>
         public void WriteToFile()
         {
             using StreamWriter writer = new StreamWriter(file);

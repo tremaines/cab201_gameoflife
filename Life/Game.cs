@@ -129,16 +129,7 @@ namespace Life
             // Write final array to file if valid output file path specified
             if (settings.OutputFile != null)
             {
-                try
-                {
-                    writeSeed = new WriteSeed(settings.OutputFile, statusArray);
-                    writeSeed.WriteToFile();
-                }
-                catch
-                {
-                    Logging.PrintMessage("Something went wrong while writing the to the output file!", 
-                        ConsoleColor.Red);
-                }
+                WriteToFile();
             }
         }
 
@@ -377,8 +368,7 @@ namespace Life
                         break;
                     }
                 }
-                // If we've got to this point without breaking, we have a match! 
-                // Can break out of outer-most loop and return index
+                // If we have a match, can break out of outer-most loop and return index
                 if (match)
                 {
                     matchIndex = i;
@@ -496,6 +486,23 @@ namespace Life
                         grid.UpdateCell(r, c, state);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Write to output file
+        /// </summary>
+        private void WriteToFile()
+        {
+            try
+            {
+                writeSeed = new WriteSeed(settings.OutputFile, statusArray);
+                writeSeed.WriteToFile();
+            }
+            catch (Exception)
+            {
+                Logging.PrintMessage("Something went wrong while writing the to the output file!",
+                    ConsoleColor.Red);
             }
         }
     }

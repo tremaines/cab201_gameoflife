@@ -155,7 +155,7 @@ namespace Life
             {
                 if (!NEIGHBOURHOODS.Contains(value))
                 {
-                    throw new ParamValueException("Neighbourhood must be one of either 'Moore' or vonNeumann");
+                    throw new ParamValueException("Neighbourhood must be one of either 'moore' or 'vonNeumann'");
                 }
                 neighbourhood = value;
             }

@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Life": {
-      "commandName": "Project",
-      "commandLineArgs": "--neighbour moore 0 true"
+      "commandName": "Project"
     }
   }
 }

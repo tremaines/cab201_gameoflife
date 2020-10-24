@@ -355,32 +355,40 @@ namespace Life
             rules = new List<string>();
             List<int> newRules = new List<int>();
 
-            for (int i = 1; i < userInput.Count; i++)
+            // If the user didn't provide any params for the option, add 0 to the rules List so the settings don't
+            // just display empty braces
+            if (userInput.Count == 1)
             {
-                if (int.TryParse(userInput[i], out int number))
-                {
-                    newRules.Add(number);
-                }
-                // If tryparse returns false, first check it is not a range
-                else
-                {
-                    string[] range = userInput[i].Split("...");
-                    if (!(int.TryParse(range[0], out int startRange) && int.TryParse(range[1], out int endRange)))
-                    {
-                        throw new ParamValueException("Survival and birth rules must be whole numbers, using '...'" +
-                            "to indicate a range");
-                    }
-
-                    // Start a loop from the beginning of the range and add numbers to newRules up to and including
-                    // the end of the range
-                    for (int j = startRange; j <= endRange; j++)
-                    {
-                        newRules.Add(j);
-                    }
-                }
-                rules.Add(userInput[i]);
+                rules.Add("0");
             }
+            else
+            {
+                for (int i = 1; i < userInput.Count; i++)
+                {
+                    if (int.TryParse(userInput[i], out int number))
+                    {
+                        newRules.Add(number);
+                    }
+                    // If tryparse returns false, first check it is not a range
+                    else
+                    {
+                        string[] range = userInput[i].Split("...");
+                        if (!(int.TryParse(range[0], out int startRange) && int.TryParse(range[1], out int endRange)))
+                        {
+                            throw new ParamValueException("Survival and birth rules must be whole numbers, using '...'"
+                                + "to indicate a range");
+                        }
 
+                        // Start a loop from the beginning of the range and add numbers to newRules up to and including
+                        // the end of the range
+                        for (int j = startRange; j <= endRange; j++)
+                        {
+                            newRules.Add(j);
+                        }
+                    }
+                    rules.Add(userInput[i]);
+                }
+            }
             return newRules;
         }
 
