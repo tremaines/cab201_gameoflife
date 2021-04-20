@@ -1,6 +1,6 @@
 ---
 title: Game of Life
-author: Tremaine Stroebel - n10689877
+author: Tremaine
 date: 25/10/20
 ---
 
